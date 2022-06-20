@@ -4,7 +4,6 @@ version = "0.1.0"
 publish = false
 authors = ["Niklas Eicker <git@nikl.me>"] # ToDo: you are the author ;)
 edition = "2021"
-exclude = ["dist", "build", "assets", "credits"]
 
 [profile.dev.package."*"]
 opt-level = 3
@@ -22,7 +21,17 @@ dev = [
 ]
 
 [dependencies]
-bevy = { version = "0.8", default-features = false, features = ["bevy_asset", "bevy_winit", "render", "png", "x11"] }
+bevy = { 
+  version = "0.8", 
+  default-features = false, 
+  features = [
+    "bevy_asset", 
+    "bevy_winit", 
+    "render", 
+    "png", 
+    "x11"
+  ] 
+}
 bevy_kira_audio = { version = "0.12" }
 bevy_asset_loader = { version = "0.12" }
 rand = { version = "0.8.3" }
@@ -30,6 +39,13 @@ rand = { version = "0.8.3" }
 # keep the following in sync with Bevy's dependencies
 winit = { version = "0.26.0", default-features = false }
 image = { version = "0.24", default-features = false }
+benimator = { version = "3.0.0" }
+bevy_ecs_ldtk = { version = "0.3.0" }
+heron = { version = "3.0", features = ["2d"] }
+bevy_prototype_lyon = "0.5.0"
+bevy-inspector-egui = "0.11.0"
+bevy_polyline = "0.2"
+grid = "0.6.0"
 
 [build-dependencies]
 embed-resource = "1.4"

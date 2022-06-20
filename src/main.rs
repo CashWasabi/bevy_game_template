@@ -8,6 +8,8 @@ use bevy::DefaultPlugins;
 use bevy_game::GamePlugin;
 use std::io::Cursor;
 use winit::window::Icon;
+use bevy::prelude::{App, ClearColor, Color, Msaa, WindowDescriptor};
+
 
 fn main() {
     App::new()
@@ -16,8 +18,7 @@ fn main() {
         .insert_resource(WindowDescriptor {
             width: 800.,
             height: 600.,
-            title: "Bevy game".to_string(), // ToDo
-            canvas: Some("#bevy".to_owned()),
+            title: "Bevy Game".to_string(),
             ..Default::default()
         })
         .add_plugins(DefaultPlugins)

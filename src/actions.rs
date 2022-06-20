@@ -8,17 +8,52 @@ pub struct ActionsPlugin;
 impl Plugin for ActionsPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<Actions>().add_system_set(
-            SystemSet::on_update(GameState::Playing).with_system(set_movement_actions),
+            SystemSet::on_update(GameState::Playing)
+            .with_system(set_actions),
         );
     }
 }
 
-#[derive(Default)]
-pub struct Actions {
-    pub player_movement: Option<Vec2>,
+#[derive(Debug, Clone, PartialEq)]
+pub enum ActionState {
+    JustPressed,
+    Pressed,
+    JustReleased,
+    Released
 }
 
-fn set_movement_actions(mut actions: ResMut<Actions>, keyboard_input: Res<Input<KeyCode>>) {
+impl Default for ActionState {
+    fn default() -> Self {
+        Self::Released
+    }
+}
+
+#[derive(Default, Debug)]
+pub struct Actions {
+    pub player_movement: Option<Vec2>,
+    pub run: ActionState,
+    pub jump: ActionState,
+    pub dash: ActionState,
+    pub crouch: ActionState,
+    pub attack: ActionState
+}
+
+fn set_action_state(control: GameControl, keyboard_input: &Res<Input<KeyCode>>) -> ActionState {
+    if control.just_pressed(keyboard_input) {
+        ActionState::JustPressed
+    }
+    else if control.pressed(keyboard_input) {
+        ActionState::Pressed
+    }
+    else if control.just_released(keyboard_input) {
+        ActionState::JustReleased
+    }
+    else {
+        ActionState::Released
+    }
+}
+
+fn set_actions(mut actions: ResMut<Actions>, keyboard_input: Res<Input<KeyCode>>) {
     if GameControl::Up.just_released(&keyboard_input)
         || GameControl::Up.pressed(&keyboard_input)
         || GameControl::Left.just_released(&keyboard_input)
@@ -70,9 +105,16 @@ fn set_movement_actions(mut actions: ResMut<Actions>, keyboard_input: Res<Input<
             player_movement = player_movement.normalize();
             actions.player_movement = Some(player_movement);
         }
-    } else {
+    }
+    else {
         actions.player_movement = None;
     }
+
+    actions.run = set_action_state(GameControl::Running, &keyboard_input);
+    actions.crouch = set_action_state(GameControl::Crouching, &keyboard_input);
+    actions.jump = set_action_state(GameControl::Jumping, &keyboard_input);
+    actions.dash = set_action_state(GameControl::Dashing, &keyboard_input);
+    actions.attack = set_action_state(GameControl::Attacking, &keyboard_input);
 }
 
 enum GameControl {
@@ -80,6 +122,11 @@ enum GameControl {
     Down,
     Left,
     Right,
+    Running,
+    Jumping,
+    Crouching,
+    Dashing,
+    Attacking
 }
 
 impl GameControl {
@@ -101,6 +148,21 @@ impl GameControl {
                 keyboard_input.just_released(KeyCode::D)
                     || keyboard_input.just_released(KeyCode::Right)
             }
+            GameControl::Running => {
+                keyboard_input.just_released(KeyCode::LShift)
+            }
+            GameControl::Jumping => {
+                keyboard_input.just_released(KeyCode::Space)
+            }
+            GameControl::Crouching => {
+                keyboard_input.just_released(KeyCode::LControl)
+            }
+            GameControl::Dashing => {
+                keyboard_input.just_released(KeyCode::Back)
+            }
+            GameControl::Attacking => {
+                keyboard_input.just_released(KeyCode::F)
+            }
         }
     }
 
@@ -117,6 +179,21 @@ impl GameControl {
             }
             GameControl::Right => {
                 keyboard_input.pressed(KeyCode::D) || keyboard_input.pressed(KeyCode::Right)
+            }
+            GameControl::Running => {
+                keyboard_input.pressed(KeyCode::LShift)
+            }
+            GameControl::Jumping => {
+                keyboard_input.pressed(KeyCode::Space)
+            }
+            GameControl::Crouching => {
+                keyboard_input.pressed(KeyCode::C)
+            }
+            GameControl::Dashing => {
+                keyboard_input.pressed(KeyCode::Back)
+            }
+            GameControl::Attacking => {
+                keyboard_input.pressed(KeyCode::F)
             }
         }
     }
@@ -137,6 +214,21 @@ impl GameControl {
             GameControl::Right => {
                 keyboard_input.just_pressed(KeyCode::D)
                     || keyboard_input.just_pressed(KeyCode::Right)
+            }
+            GameControl::Running => {
+                keyboard_input.just_pressed(KeyCode::LShift)
+            }
+            GameControl::Jumping => {
+                keyboard_input.just_pressed(KeyCode::Space)
+            }
+            GameControl::Crouching => {
+                keyboard_input.just_pressed(KeyCode::C)
+            }
+            GameControl::Dashing => {
+                keyboard_input.just_pressed(KeyCode::Back)
+            }
+            GameControl::Attacking => {
+                keyboard_input.just_pressed(KeyCode::F)
             }
         }
     }

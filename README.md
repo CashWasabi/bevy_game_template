@@ -10,7 +10,6 @@ _Since Bevy is in heavy development, there regularly are unpublished new feature
 * run the native version with `cargo run`
 * workflow for GitHub actions creating releases for Windows, Linux, macOS, and Web (Wasm) ready for distribution
     * push a tag in the form of `v[0-9]+.[0-9]+.[0-9]+*` (e.g. `v1.1.42`) to trigger the flow
-    * WARNING: if you work in a private repository, please be aware that macOS and Windows runners cost more build minutes. You might want to consider running the workflow less often or removing some builds from it. **For public repositories the builds are free!**
 
 # How to use this template?
  1. Click "Use this template" on the repository's page
@@ -42,6 +41,17 @@ You should keep the `credits` directory up to date. The release workflow automat
 
 To deploy newer versions, just run the `deploy-github-page` workflow again.
 
+=======
+ 1. Replace `build/windows/icon.ico` (used for windows executable and as favicon for the web-builds)
+ 2. Replace `build/macos/icon_1024x1024.png` with a `1024` times `1024` pixel png icon and run `create_icns.sh` (make sure to run the script inside the `macos` directory) - _Warning: sadly this seems to require a mac..._
+
+### Deploy web build to GitHub pages
+ 1. Activate [GitHub pages](https://pages.github.com/) for your repository
+    1. Source from the `gh-pages` branch
+ 2. Trigger the `deploy-github-page` workflow
+ 3. After a few minutes your game is live at `http://username.github.io/repository`
+
+>>>>>>> f21d37e (Add everything)
 # Getting started with Bevy
 
 You should check out the Bevy website for [links to resources][bevy-learn] and the [Bevy Cheat Book] for a bunch of helpful documentation and examples. I can also recommend the [official Bevy Discord server][bevy-discord] to keep up to date with the development and get feedback + help from other Bevy users.
