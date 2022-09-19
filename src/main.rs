@@ -8,7 +8,6 @@ use bevy::DefaultPlugins;
 use bevy_game::GamePlugin;
 use std::io::Cursor;
 use winit::window::Icon;
-use bevy::prelude::{App, ClearColor, Color, Msaa, WindowDescriptor};
 
 
 fn main() {

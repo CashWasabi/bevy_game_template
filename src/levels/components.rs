@@ -1,8 +1,9 @@
 use bevy::prelude::*;
-use heron::*;
 use bevy_ecs_ldtk::{prelude::*, utils::ldtk_pixel_coords_to_translation_pivoted};
 
 use std::collections::HashSet;
+
+use heron::prelude::*;
 
 #[derive(Clone, Debug, Default, Bundle, LdtkIntCell)]
 pub struct ColliderBundle {
@@ -18,6 +19,15 @@ impl From<EntityInstance> for ColliderBundle {
         let rotation_constraints = RotationConstraints::lock();
 
         match entity_instance.identifier.as_ref() {
+            "Player" => ColliderBundle {
+                collider: CollisionShape::Cuboid {
+                    half_extends: Vec3::new(6., 14., 0.),
+                    border_radius: None,
+                },
+                rigid_body: RigidBody::Dynamic,
+                rotation_constraints,
+                ..Default::default()
+            },
             "Mob" => ColliderBundle {
                 collider: CollisionShape::Cuboid {
                     half_extends: Vec3::new(5., 5., 0.),
@@ -93,6 +103,9 @@ impl From<EntityInstance> for Items {
     }
 }
 
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Default, Component)]
+pub struct Player;
+
 #[derive(Clone, Eq, PartialEq, Debug, Default, Component)]
 pub struct Climber {
     pub climbing: bool,
@@ -100,12 +113,19 @@ pub struct Climber {
 }
 
 #[derive(Clone, Default, Bundle, LdtkEntity)]
-pub struct ItemBundle {
+pub struct PlayerBundle {
+    #[sprite_bundle("player.png")]
+    #[bundle]
+    pub sprite_bundle: SpriteBundle,
     #[from_entity_instance]
     #[bundle]
     pub collider_bundle: ColliderBundle,
+    pub player: Player,
     #[worldly]
     pub worldly: Worldly,
+    pub climber: Climber,
+    pub ground_detection: GroundDetection,
+
     // Build Items Component manually by using `impl From<EntityInstance>
     #[from_entity_instance]
     items: Items,
@@ -216,4 +236,15 @@ pub struct ChestBundle {
     #[from_entity_instance]
     #[bundle]
     pub collider_bundle: ColliderBundle,
+}
+
+#[derive(Clone, Default, Component)]
+pub struct GroundDetection {
+    pub on_ground: bool,
+}
+
+#[derive(Component)]
+pub struct GroundSensor {
+    pub ground_detection_entity: Entity,
+    pub intersecting_ground_entities: HashSet<Entity>,
 }

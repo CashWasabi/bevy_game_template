@@ -2,28 +2,21 @@ mod actions;
 mod audio;
 mod loading;
 mod menu;
-mod painter;
 mod player;
-mod levels;
+// mod levels;
 mod animations;
 
 use crate::actions::ActionsPlugin;
 use crate::audio::InternalAudioPlugin;
 use crate::loading::LoadingPlugin;
 use crate::menu::MenuPlugin;
-use crate::levels::level::LevelPlugin;
+// use crate::levels::level::LevelPlugin;
 use crate::animations::animation::InternalAnimationPlugin;
 use crate::player::PlayerPlugin;
 use bevy_inspector_egui::WorldInspectorPlugin;
-// use crate::painter::PainterPlugin;
 
 use bevy::app::App;
-#[cfg(debug_assertions)]
-// use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
-
-// polyline plugin
-// use bevy_polyline::prelude::PolylinePlugin;
 
 // This example game uses States to separate logic
 // See https://bevy-cheatbook.github.io/programming/states.html
@@ -47,18 +40,10 @@ impl Plugin for GamePlugin {
             .add_plugin(MenuPlugin)
             .add_plugin(ActionsPlugin)
             .add_plugin(InternalAudioPlugin)
-            .add_plugin(LevelPlugin)
+            // .add_plugin(LevelPlugin)
             .add_plugin(InternalAnimationPlugin)
             .add_plugin(PlayerPlugin)
             .add_plugin(WorldInspectorPlugin::new())
             ;
-            // .add_plugin(PolylinePlugin)
-            // .add_plugin(PainterPlugin)
-
-        // #[cfg(debug_assertions)]
-        // {
-        //     app.add_plugin(FrameTimeDiagnosticsPlugin::default())
-        //         .add_plugin(LogDiagnosticsPlugin::default());
-        // }
     }
 }

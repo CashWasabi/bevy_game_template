@@ -1,10 +1,9 @@
 use std::time::Duration;
 use crate::actions::{Actions, ActionState};
-use crate::animations::animation::Animations;
-use crate::levels::components::ColliderBundle;
+use crate::animations::animation::{PlayerAnimations, Animation, AnimationState};
+// use crate::levels::components::ColliderBundle;
 use crate::loading::TextureAssets;
 use crate::GameState;
-use benimator::{Play, SpriteSheetAnimation};
 use bevy::prelude::*;
 use bevy::utils::HashSet;
 use bevy_ecs_ldtk::{LevelSelection, LdtkLevel};
@@ -18,6 +17,17 @@ pub struct PlayerPlugin;
 
 #[derive(Component)]
 pub struct Player;
+
+#[derive(Component)]
+pub enum PlayerState {
+    Idle,
+    Move,
+    Jump,
+    Fall,
+    Crouch,
+    Attack,
+    Dash
+}
 
 #[derive(Clone, Default, Component)]
 pub struct GroundDetection {
@@ -58,13 +68,6 @@ impl Plugin for PlayerPlugin {
                 .with_system(spawn_ground_sensor)
                 .with_system(ground_detection)
                 .with_system(update_level_selection)
-                // .with_system(idle_system)
-                // .with_system(move_system)
-                // .with_system(jump_system)
-                // .with_system(fall_system)
-                // .with_system(dash_system)
-                // .with_system(crouch_system)
-                // .with_system(attack_system)
                 .with_system(check_grounded_system)
                 .with_system(update_movement)
                 .with_system(update_animation)
@@ -95,7 +98,7 @@ pub fn set_texture_filters_to_nearest(
 }
 
 fn spawn_camera(mut commands: Commands) {
-    let camera = OrthographicCameraBundle::new_2d();
+    let camera = Camera2dBundle::default();
     commands.spawn_bundle(camera).insert(PlayCam);
 }
 
@@ -103,7 +106,7 @@ fn spawn_player(
     mut commands: Commands,
     textures: Res<TextureAssets>,
     mut texture_atlas: ResMut<Assets<TextureAtlas>>,
-    animations: Res<Animations>
+    animations: Res<PlayerAnimations>
 ) {
     let player_position = Vec3::new(200., 400., 10.);
     let player_size = Vec3::new(50., 37., 0.);
@@ -159,8 +162,9 @@ fn spawn_player(
         .insert(Direction::default())
         .insert(GroundDetection::default())
         .insert(PlayerState::Idle)
-        .insert(animations.idle.clone())
-        .insert(Play)
+        //TODO(MO): This is outdated now
+        // .insert(animations.idle.clone())
+        // .insert(Play)
         ;
 }
 
@@ -394,97 +398,11 @@ pub fn transition_to_idle(
 }
 pub fn transition_from_idle(_entity: Entity, _commands: &mut Commands) {}
 
-// pub fn idle_system(
-//     actions: Res<Actions>,
-//     mut commands: Commands,
-//     mut query: Query<(Entity, &mut PlayerState, &mut Velocity, &Grounded)>,
-// ) {
-//     for (
-//         entity,
-//         mut player_state,
-//         mut velocity,
-//         _,
-//     ) in query.iter_mut() {
-//         if actions.jump == ActionState::JustPressed {
-//             println!("IDLE -> JUMP");
-//             transition_from_idle(entity, &mut commands);
-//             transition_to_jump(entity, &mut commands, &mut velocity, &mut player_state);
-//         }
-//         else if actions.attack == ActionState::JustPressed {
-//             println!("IDLE -> ATTACK");
-//             transition_from_idle(entity, &mut commands);
-//             transition_to_attack(entity, &mut commands, &mut player_state);
-//         }
-//         else if actions.crouch == ActionState::JustPressed {
-//             println!("IDLE -> CROUCH");
-//             transition_from_idle(entity, &mut commands);
-//             transition_to_crouch(&mut player_state);
-//         }
-//         else if actions.player_movement.unwrap_or(Vec2::ZERO).x != 0. {
-//             println!("IDLE -> MOVE");
-//             transition_from_idle(entity, &mut commands);
-//             transition_to_move(&mut player_state);
-//         }
-//     }
-// }
-
 pub fn transition_to_move(player_state: &mut PlayerState) {
     *player_state = PlayerState::Move;
 }
 pub fn transition_from_move() {}
 
-// pub fn move_system(
-//     actions: Res<Actions>,
-//     mut commands: Commands,
-//     mut query: Query<(Entity, &mut PlayerState, &mut Velocity)>,
-//     ground_check: Query<&Grounded>,
-// ) {
-//     for (
-//         entity,
-//         mut player_state,
-//         mut velocity,
-//     ) in query.iter_mut() {
-//         if !ground_check.get(entity).is_ok() {
-//             println!("MOVE -> FALL");
-//             transition_from_move();
-//             transition_to_fall(&mut player_state);
-//             return;
-//         }
-
-//         if actions.jump == ActionState::JustPressed {
-//             println!("MOVE -> JUMP");
-//             transition_from_move();
-//             transition_to_jump(entity, &mut commands, &mut velocity, &mut player_state);
-//         }
-//         else if actions.attack == ActionState::JustPressed {
-//             println!("MOVE -> ATTACK");
-//             transition_from_move();
-//             transition_to_attack(entity, &mut commands, &mut player_state);
-//         }
-//         else if actions.crouch == ActionState::JustPressed {
-//             println!("CROUCH -> ATTACK");
-//             transition_from_move();
-//             transition_to_crouch(&mut player_state);
-//         }
-//         else if actions.dash == ActionState::JustPressed {
-//             println!("MOVE -> DASH");
-//             transition_from_move();
-//             transition_to_dash(entity, &mut commands, &mut player_state);
-//         }
-//         else if actions.player_movement.unwrap_or(Vec2::ZERO).x != 0. {
-//             let mut speed = 200.;
-//             if actions.run == ActionState::Pressed {
-//                 speed = 300.;
-//             }
-//             let direction = actions.player_movement.unwrap_or(Vec2::ZERO);
-//             velocity.linear.x = direction.x * speed;
-//         } else {
-//             println!("MOVE -> IDLE");
-//             transition_from_move();
-//             transition_to_idle(&mut velocity, &mut player_state);
-//         }
-//     }
-// }
 
 #[derive(Component)]
 pub struct JumpTimer{
@@ -509,40 +427,6 @@ pub fn transition_from_jump(
 ) {
     commands.entity(entity).remove::<JumpTimer>();
 }
-
-// pub fn jump_system(
-//     actions: Res<Actions>,
-//     mut commands: Commands,
-//     time: Res<Time>,
-//     mut query: Query<(Entity, &mut PlayerState, &mut Velocity, &mut JumpTimer)>,
-//     ground_check: Query<&Grounded>,
-// ) {
-//     for (
-//         entity,
-//         mut player_state,
-//         mut velocity,
-//         mut jump_timer,
-//     ) in query.iter_mut() {
-//         if ground_check.get(entity).is_ok() && velocity.linear.y <= 0. {
-//             println!("JUMP -> IDLE");
-//             transition_from_jump(entity, &mut commands);
-//             transition_to_idle(&mut velocity, &mut player_state);
-//             // early return since we're grounded
-//             return;
-//         }
-
-//         jump_timer.timer.tick(time.delta());
-
-//         if actions.jump != ActionState::JustReleased && !jump_timer.timer.finished() {
-//             velocity.linear.y *= 1.10;
-//         }
-//         else if velocity.linear.y < 0.0 {
-//             println!("JUMP -> Fall");
-//             transition_from_jump(entity, &mut commands);
-//             transition_to_fall(&mut player_state);
-//         }
-//     }
-// }
 
 // TODO(MO): jump buffer should check if we're pressing the button a bit to early
 // if we're grounded then or are able to jump in this time frame then execute
@@ -622,26 +506,17 @@ pub fn transition_to_crouch(
 }
 pub fn transition_from_crouch() {}
 
-#[derive(Component)]
-pub enum PlayerState {
-    Idle,
-    Move,
-    Jump,
-    Fall,
-    Crouch,
-    Attack,
-    Dash
-}
-
+// TODO(MO): Things changed fix this!
+// Where do we want to put this information?
 fn update_animation(
-    animations: Res<Animations>,
-    mut query: Query<(&PlayerState, &mut Handle<SpriteSheetAnimation>)>,
+    animations: Res<PlayerAnimations>,
+    mut query: Query<(&PlayerState, &mut Animation)>,
 ) {
     for (
         player_state,
-        mut anim,
+        mut current_animation,
     ) in query.iter_mut() {
-        let new_anim = match player_state {
+        let new_animation = match player_state {
             PlayerState::Idle => animations.idle.clone(),
             PlayerState::Move => animations.run.clone(),
             PlayerState::Jump => animations.jump.clone(),
@@ -653,15 +528,15 @@ fn update_animation(
 
         // TODO(MO): How do we compare them?
         // Does this do what we think it does?
-        if anim.id == new_anim.id {
+        if current_animation == new_animation {
             return;
         }
-        *anim = new_anim;
+        *current_animation = new_animation;
     }
 }
 
 // TODO(MO): Certain things like jump or dash are triggering sequences
-// How can we solve this?
+// How can we solve this? The current solution looks a bit brittle!
 fn update_movement(
     time: Res<Time>,
     actions: Res<Actions>,
