@@ -2,7 +2,6 @@ use std::time::Duration;
 
 use bevy::prelude::*;
 use heron::prelude::*;
-use bevy_prototype_lyon::prelude::*;
 
 use crate::actions::{Actions, ActionState};
 use crate::levels::components::GroundDetection;
@@ -76,10 +75,8 @@ pub struct CoyoteTimeBuffer(f32);
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app
-        .add_plugin(ShapePlugin)
         .add_system_set(
             SystemSet::on_update(GameState::Playing)
-                // TODO(MO): Do we need this when we already have ground checks in level.rs?
                 .with_system(update_movement)
         );
     }

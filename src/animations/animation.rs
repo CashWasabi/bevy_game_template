@@ -20,9 +20,22 @@ impl Default for Animation {
         ))
     }
 }
+
 // Create the player component
-#[derive(Default, Component, Deref, DerefMut)]
+#[derive(Component, Deref, DerefMut)]
 pub struct AnimationState(benimator::State);
+impl Default for AnimationState {
+    fn default() -> Self {
+        AnimationState(benimator::State::default())
+    }
+}
+
+// TODO(MO): Can we do this somehow else?
+impl Clone for AnimationState {
+    fn clone(&self) -> Self {
+        AnimationState(benimator::State::default())
+    }
+}
 
 // This plugin manages every animation in the game
 impl Plugin for InternalAnimationPlugin {
@@ -90,7 +103,11 @@ fn animate(
     time: Res<Time>,
     mut query: Query<(&mut AnimationState, &mut TextureAtlasSprite, &Animation)>,
 ) {
-    for (mut player, mut texture, animation) in query.iter_mut() {
+    for (
+        mut player, 
+        mut texture, 
+        animation
+    ) in query.iter_mut() {
         // Update the state
         player.update(animation, time.delta());
 
@@ -123,7 +140,7 @@ fn update_player_animation(
     for (
         player_state, 
         player_animations, 
-        mut animation
+        mut animation,
     ) in query.iter_mut() {
         let new_animation = match player_state {
             player::PlayerState::Idle => player_animations.idle.clone(),

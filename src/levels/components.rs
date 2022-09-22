@@ -128,8 +128,12 @@ pub struct PlayerBundle {
     )]
     #[bundle]
     pub sprite_sheet_bundle: SpriteSheetBundle,
+    // TODO(MO): Do an animation Bundle maybe?
     pub player_animations: animation::PlayerAnimations,
     pub animation: animation::Animation,
+    pub animation_state: animation::AnimationState,
+
+    // TODO(MO): Do a PlayerMovement Bundle maybe?
     pub direction: player::Direction,
     pub player_state: player::PlayerState,
 
