@@ -4,6 +4,8 @@ use bevy_ecs_ldtk::{prelude::*, utils::ldtk_pixel_coords_to_translation_pivoted}
 use std::collections::HashSet;
 
 use heron::prelude::*;
+use crate::animations::animation;
+use crate::player;
 
 #[derive(Clone, Debug, Default, Bundle, LdtkIntCell)]
 pub struct ColliderBundle {
@@ -114,9 +116,23 @@ pub struct Climber {
 
 #[derive(Clone, Default, Bundle, LdtkEntity)]
 pub struct PlayerBundle {
-    #[sprite_bundle("player.png")]
+    #[sprite_sheet_bundle(
+        "characters/Adventurer-1.5/adventurer-v1.5-Sheet.png",
+        50.0, // tile height
+        37.0, // tile width
+        7,  // columns
+        11, // rows
+        0.0, // padding
+        0.0, // offset
+        0 // index
+    )]
     #[bundle]
-    pub sprite_bundle: SpriteBundle,
+    pub sprite_sheet_bundle: SpriteSheetBundle,
+    pub player_animations: animation::PlayerAnimations,
+    pub animation: animation::Animation,
+    pub direction: player::Direction,
+    pub player_state: player::PlayerState,
+
     #[from_entity_instance]
     #[bundle]
     pub collider_bundle: ColliderBundle,

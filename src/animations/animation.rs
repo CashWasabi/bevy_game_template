@@ -1,16 +1,25 @@
 // New Way
-use bevy::{prelude::*, render::texture::ImageSettings};
+use bevy::prelude::*;
 use benimator::*;
+use crate::actions::Actions;
 
-use crate::{loading::TextureAssets, GameState};
+use crate::{GameState};
+use crate::player;
 
 pub struct InternalAnimationPlugin;
 
 // Create the animation component
 // Note: you may make the animation an asset instead of a component
-#[derive(Component, Deref)]
-pub struct Animation(benimator::Animation);
-
+#[derive(Component, Deref, Clone)]
+pub struct Animation(pub benimator::Animation);
+impl Default for Animation {
+    fn default() -> Self {
+        Animation(benimator::Animation::from_indices(
+            0..=1,
+            FrameRate::from_fps(12.0),
+        ))
+    }
+}
 // Create the player component
 #[derive(Default, Component, Deref, DerefMut)]
 pub struct AnimationState(benimator::State);
@@ -19,17 +28,11 @@ pub struct AnimationState(benimator::State);
 impl Plugin for InternalAnimationPlugin {
     fn build(&self, app: &mut App) {
         app
-        // TODO(MO): Do we want it to be a resource?
-        // .init_resource::<PlayerAnimations>()
-        .insert_resource(ImageSettings::default_nearest())
-        .init_resource::<PlayerAnimations>()
-        // .add_system_set(
-        //     SystemSet::on_enter(GameState::Playing)
-        //         .with_system(create_player_animations)
-        // )
         .add_system_set(
             SystemSet::on_update(GameState::Playing)
                 .with_system(animate)
+                .with_system(update_player_animation)
+                .with_system(flip_sprites)
         )
         ;
     }
@@ -37,7 +40,7 @@ impl Plugin for InternalAnimationPlugin {
 
 
 // Create a resource to store handles of the animations
-#[derive(Component)]
+#[derive(Component, Clone)]
 pub struct PlayerAnimations {
     pub idle: Animation,
     pub run: Animation,
@@ -48,13 +51,8 @@ pub struct PlayerAnimations {
     pub attack: Animation,
 }
 
-impl FromWorld for PlayerAnimations {
-    fn from_world(world: &mut World) -> Self {
-        // You have full access to anything in the ECS from here.
-        // For instance, you can mutate other resources:
-        let textures = world.get_resource::<TextureAssets>().unwrap();
-        let mut texture_atlas = world.get_resource_mut::<Assets<TextureAtlas>>().unwrap();
-
+impl Default for PlayerAnimations {
+    fn default() -> Self {
         PlayerAnimations {
             idle: Animation(benimator::Animation::from_indices(
                 0..=3,
@@ -88,60 +86,6 @@ impl FromWorld for PlayerAnimations {
     }
 }
 
-// fn create_player_animations(
-//     textures: Res<TextureAssets>,
-//     mut texture_atlas: ResMut<Assets<TextureAtlas>>,
-// ) {
-//     let player_position = Vec3::ZERO;
-//     let texture_atlas = texture_atlas.add(
-//         TextureAtlas::from_grid(
-//             textures.texture_player.clone().into(),
-//             Vec2::new(1.0, 1.0),
-//             7, 11
-//         )
-
-//     );
-//     let player_sprite = SpriteSheetBundle {
-//         texture_atlas: texture_atlas,
-//         transform: Transform {
-//             translation: player_position,
-//             ..Transform::default()
-//         },
-//         ..Default::default()
-//     };
-
-//     let player_animations = PlayerAnimations {
-//         idle: Animation(benimator::Animation::from_indices(
-//             0..=3,
-//             FrameRate::from_fps(12.0),
-//         )),
-//         run: Animation(benimator::Animation::from_indices(
-//             8..=13,
-//             FrameRate::from_fps(12.0),
-//         )),
-//         jump: Animation(benimator::Animation::from_indices(
-//             14..=23,
-//             FrameRate::from_fps(12.0),
-//         )),
-//         dash: Animation(benimator::Animation::from_indices(
-//             24..=28,
-//             FrameRate::from_fps(12.0),
-//         )),
-//         fall: Animation(benimator::Animation::from_indices(
-//             22..=23,
-//             FrameRate::from_fps(12.0),
-//         )),
-//         crouch: Animation(benimator::Animation::from_indices(
-//             4..=7,
-//             FrameRate::from_fps(12.0),
-//         )),
-//         attack: Animation(benimator::Animation::from_indices(
-//             55..=57,
-//             FrameRate::from_fps(12.0),
-//         )),
-//     };
-// }
-
 fn animate(
     time: Res<Time>,
     mut query: Query<(&mut AnimationState, &mut TextureAtlasSprite, &Animation)>,
@@ -155,35 +99,47 @@ fn animate(
     };
 }
 
-// TODO(MO): Remove this since it is only meant as a reference
-// fn spawn(
-//     mut commands: Commands,
-//     asset_server: Res<AssetServer>,
-//     mut textures: ResMut<Assets<TextureAtlas>>,
-// ) {
-//     // Don't forget the camera ;-)
-//     commands.spawn_bundle(Camera2dBundle::default());
-//
-//     // Create an animation
-//     let animation = Animation(benimator::Animation::from_indices(
-//         0..=4,
-//         FrameRate::from_fps(12.0),
-//     ));
-//
-//     commands
-//         // Spawn a bevy sprite-sheet
-//         .spawn_bundle(SpriteSheetBundle {
-//             texture_atlas: textures.add(TextureAtlas::from_grid(
-//                 asset_server.load("coin.png"),
-//                 Vec2::new(16.0, 16.0),
-//                 5,
-//                 1,
-//             )),
-//             transform: Transform::from_scale(Vec3::splat(10.0)),
-//             ..Default::default()
-//         })
-//         // Insert the animation
-//         .insert(animation)
-//         // Insert the state
-//         .insert(AnimationState::default());
-// }
+fn flip_sprites(
+    actions: Res<Actions>,
+    mut query: Query<(&mut player::Direction, &mut TextureAtlasSprite)>
+) {
+    let dir = actions.player_movement.unwrap_or(Vec2::ZERO);
+    for (mut direction, mut sprite) in query.iter_mut() {
+        if dir.x != 0. {
+            direction.orientation = dir.x;
+
+            if sprite.flip_x && direction.orientation > 0. {
+                sprite.flip_x = false;
+            } else if !sprite.flip_x && direction.orientation < 0. {
+                sprite.flip_x = true;
+            }
+        }
+    }
+}
+
+fn update_player_animation(
+    mut query: Query<(&player::PlayerState, &PlayerAnimations, &mut Animation)>,
+) {
+    for (
+        player_state, 
+        player_animations, 
+        mut animation
+    ) in query.iter_mut() {
+        let new_animation = match player_state {
+            player::PlayerState::Idle => player_animations.idle.clone(),
+            player::PlayerState::Move => player_animations.run.clone(),
+            player::PlayerState::Jump => player_animations.jump.clone(),
+            player::PlayerState::Fall => player_animations.fall.clone(),
+            player::PlayerState::Crouch => player_animations.crouch.clone(),
+            player::PlayerState::Attack => player_animations.attack.clone(),
+            player::PlayerState::Dash => player_animations.dash.clone()
+        };
+
+        // TODO(MO): How do we compare them?
+        // Does this do what we think it does?
+        // if current_animation == new_animation {
+        //     return;
+        // }
+        *animation = new_animation;
+    }
+}

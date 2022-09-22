@@ -1,4 +1,4 @@
-use crate::components::*;
+use crate::levels::components::*;
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 
@@ -7,12 +7,11 @@ use std::collections::{HashMap, HashSet};
 use heron::prelude::*;
 
 pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let camera = Camera2dBundle::default();
-    commands.spawn_bundle(camera);
-
     asset_server.watch_for_changes().unwrap();
 
-    let ldtk_handle = asset_server.load("Typical_2D_platformer_example.ldtk");
+    let ldtk_handle = asset_server.load(
+        "ldtk/Typical_2D_platformer_example.ldtk"
+    );
     commands.spawn_bundle(LdtkWorldBundle {
         ldtk_handle,
         ..Default::default()
@@ -40,36 +39,6 @@ pub fn dbg_player_items(
         if input.just_pressed(KeyCode::P) {
             dbg!(&items);
             dbg!(&entity_instance);
-        }
-    }
-}
-
-pub fn movement(
-    input: Res<Input<KeyCode>>,
-    mut query: Query<(&mut Velocity, &mut Climber, &GroundDetection), With<Player>>,
-) {
-    for (mut velocity, mut climber, ground_detection) in query.iter_mut() {
-        let right = if input.pressed(KeyCode::D) { 1. } else { 0. };
-        let left = if input.pressed(KeyCode::A) { 1. } else { 0. };
-
-        velocity.linear.x = (right - left) * 200.;
-
-        if climber.intersecting_climbables.is_empty() {
-            climber.climbing = false;
-        } else if input.just_pressed(KeyCode::W) || input.just_pressed(KeyCode::S) {
-            climber.climbing = true;
-        }
-
-        if climber.climbing {
-            let up = if input.pressed(KeyCode::W) { 1. } else { 0. };
-            let down = if input.pressed(KeyCode::S) { 1. } else { 0. };
-
-            velocity.linear.y = (up - down) * 200.;
-        }
-
-        if input.just_pressed(KeyCode::Space) && (ground_detection.on_ground || climber.climbing) {
-            velocity.linear.y = 450.;
-            climber.climbing = false;
         }
     }
 }

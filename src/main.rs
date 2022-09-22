@@ -1,6 +1,7 @@
 // disable console on windows for release builds
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use bevy::{render::texture::ImageSettings};
 use bevy::prelude::{App, ClearColor, Color, Msaa, NonSend, WindowDescriptor};
 use bevy::window::WindowId;
 use bevy::winit::WinitWindows;
@@ -12,6 +13,7 @@ use winit::window::Icon;
 
 fn main() {
     App::new()
+        .insert_resource(ImageSettings::default_nearest())
         .insert_resource(Msaa { samples: 1 })
         .insert_resource(ClearColor(Color::rgb(0.4, 0.4, 0.4)))
         .insert_resource(WindowDescriptor {

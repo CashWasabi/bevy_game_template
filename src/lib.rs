@@ -2,16 +2,18 @@ mod actions;
 mod audio;
 mod loading;
 mod menu;
-mod player;
-// mod levels;
+mod levels;
 mod animations;
+mod enemy;
+mod player;
 
 use crate::actions::ActionsPlugin;
 use crate::audio::InternalAudioPlugin;
 use crate::loading::LoadingPlugin;
 use crate::menu::MenuPlugin;
-// use crate::levels::level::LevelPlugin;
+use crate::levels::level::LevelPlugin;
 use crate::animations::animation::InternalAnimationPlugin;
+use crate::enemy::EnemyPlugin;
 use crate::player::PlayerPlugin;
 use bevy_inspector_egui::WorldInspectorPlugin;
 
@@ -40,8 +42,9 @@ impl Plugin for GamePlugin {
             .add_plugin(MenuPlugin)
             .add_plugin(ActionsPlugin)
             .add_plugin(InternalAudioPlugin)
-            // .add_plugin(LevelPlugin)
+            .add_plugin(LevelPlugin)
             .add_plugin(InternalAnimationPlugin)
+            .add_plugin(EnemyPlugin)
             .add_plugin(PlayerPlugin)
             .add_plugin(WorldInspectorPlugin::new())
             ;
