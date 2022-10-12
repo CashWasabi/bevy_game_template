@@ -3,8 +3,12 @@ use bevy::prelude::*;
 use benimator::*;
 use crate::actions::Actions;
 
-use crate::{GameState};
-use crate::player;
+use crate::GameState;
+use crate::players::components::{
+    PlayerData,
+    PlayerState,
+    PlayerDirection
+};
 
 pub struct InternalAnimationPlugin;
 
@@ -61,39 +65,35 @@ pub struct PlayerAnimations {
     pub dash: Animation,
     pub fall: Animation,
     pub crouch: Animation,
-    pub attack: Animation,
 }
 
 impl Default for PlayerAnimations {
     fn default() -> Self {
+        let frame_rate = 6.0;
         PlayerAnimations {
             idle: Animation(benimator::Animation::from_indices(
                 0..=3,
-                FrameRate::from_fps(12.0),
+                FrameRate::from_fps(frame_rate),
             )),
             run: Animation(benimator::Animation::from_indices(
                 8..=13,
-                FrameRate::from_fps(12.0),
+                FrameRate::from_fps(frame_rate),
             )),
             jump: Animation(benimator::Animation::from_indices(
                 14..=23,
-                FrameRate::from_fps(12.0),
+                FrameRate::from_fps(frame_rate),
             )),
             dash: Animation(benimator::Animation::from_indices(
                 24..=28,
-                FrameRate::from_fps(12.0),
+                FrameRate::from_fps(frame_rate),
             )),
             fall: Animation(benimator::Animation::from_indices(
                 22..=23,
-                FrameRate::from_fps(12.0),
+                FrameRate::from_fps(frame_rate),
             )),
             crouch: Animation(benimator::Animation::from_indices(
                 4..=7,
-                FrameRate::from_fps(12.0),
-            )),
-            attack: Animation(benimator::Animation::from_indices(
-                55..=57,
-                FrameRate::from_fps(12.0),
+                FrameRate::from_fps(frame_rate),
             )),
         }
     }
@@ -118,16 +118,16 @@ fn animate(
 
 fn flip_sprites(
     actions: Res<Actions>,
-    mut query: Query<(&mut player::Direction, &mut TextureAtlasSprite)>
+    mut query: Query<(&mut PlayerDirection, &mut TextureAtlasSprite)>
 ) {
     let dir = actions.player_movement.unwrap_or(Vec2::ZERO);
     for (mut direction, mut sprite) in query.iter_mut() {
         if dir.x != 0. {
-            direction.orientation = dir.x;
+            direction.0 = dir.x;
 
-            if sprite.flip_x && direction.orientation > 0. {
+            if sprite.flip_x && direction.0 > 0. {
                 sprite.flip_x = false;
-            } else if !sprite.flip_x && direction.orientation < 0. {
+            } else if !sprite.flip_x && direction.0 < 0. {
                 sprite.flip_x = true;
             }
         }
@@ -135,28 +135,22 @@ fn flip_sprites(
 }
 
 fn update_player_animation(
-    mut query: Query<(&player::PlayerState, &PlayerAnimations, &mut Animation)>,
+    mut query: Query<(&PlayerData, &PlayerAnimations, &mut Animation)>,
 ) {
     for (
-        player_state, 
+        player_data, 
         player_animations, 
         mut animation,
     ) in query.iter_mut() {
-        let new_animation = match player_state {
-            player::PlayerState::Idle => player_animations.idle.clone(),
-            player::PlayerState::Move => player_animations.run.clone(),
-            player::PlayerState::Jump => player_animations.jump.clone(),
-            player::PlayerState::Fall => player_animations.fall.clone(),
-            player::PlayerState::Crouch => player_animations.crouch.clone(),
-            player::PlayerState::Attack => player_animations.attack.clone(),
-            player::PlayerState::Dash => player_animations.dash.clone()
+        let new_animation = match player_data.player_state {
+            PlayerState::Idle => player_animations.idle.clone(),
+            PlayerState::Move => player_animations.run.clone(),
+            PlayerState::Jump => player_animations.jump.clone(),
+            PlayerState::Fall => player_animations.fall.clone(),
+            PlayerState::Crouch => player_animations.crouch.clone(),
+            PlayerState::Dash => player_animations.dash.clone()
         };
 
-        // TODO(MO): How do we compare them?
-        // Does this do what we think it does?
-        // if current_animation == new_animation {
-        //     return;
-        // }
         *animation = new_animation;
     }
 }

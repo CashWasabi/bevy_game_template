@@ -1,23 +1,23 @@
-// This example shows off a more in-depth implementation of a game with `bevy_ecs_ldtk`.
-// Please run with `--release`.
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
+use bevy_rapier2d::prelude::*;
 
-use heron::prelude::*;
-
+use crate::GameState;
 use crate::levels::components;
 use crate::levels::systems;
-
 pub struct LevelPlugin;
-
 
 // This plugin is responsible to control the game levels
 impl Plugin for LevelPlugin {
     fn build(&self, app: &mut App) {
         app
         .add_plugin(LdtkPlugin)
-        .add_plugin(PhysicsPlugin::default())
-        .insert_resource(Gravity::from(Vec3::new(0.0, -2000., 0.0)))
+        .insert_resource(RapierConfiguration {
+            gravity: Vec2::new(0.0, -500.0),
+            ..Default::default()
+        })
+        .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
+        .add_plugin(RapierDebugRenderPlugin::default())
         .insert_resource(LevelSelection::Uid(0))
         .insert_resource(LdtkSettings {
             level_spawn_behavior: LevelSpawnBehavior::UseWorldTranslation {
@@ -26,24 +26,20 @@ impl Plugin for LevelPlugin {
             set_clear_color: SetClearColor::FromLevelBackground,
             ..Default::default()
         })
-        .add_startup_system(systems::setup)
-        .add_system(systems::pause_physics_during_load)
-        .add_system(systems::spawn_wall_collision)
-        .add_system(systems::detect_climb_range)
-        .add_system(systems::ignore_gravity_if_climbing)
-        .add_system(systems::patrol)
-        .add_system(systems::camera_fit_inside_current_level)
-        .add_system(systems::update_level_selection)
-        .add_system(systems::dbg_player_items)
-        .add_system(systems::spawn_ground_sensor)
-        .add_system(systems::ground_detection)
-        .add_system(systems::restart_level)
+        .add_system_set(
+            SystemSet::on_enter(GameState::Playing)
+                .with_system(systems::setup)
+        )
+        .add_system_set(
+            SystemSet::on_update(GameState::Playing)
+                .with_system(systems::spawn_wall_collision)
+                .with_system(systems::camera_fit_inside_current_level)
+                .with_system(systems::update_level_selection)
+                .with_system(systems::restart_level)
+        )
         .register_ldtk_int_cell::<components::WallBundle>(1)
-        .register_ldtk_int_cell::<components::LadderBundle>(2)
         .register_ldtk_int_cell::<components::WallBundle>(3)
         .register_ldtk_entity::<components::PlayerBundle>("Player")
-        .register_ldtk_entity::<components::MobBundle>("Mob")
-        .register_ldtk_entity::<components::ChestBundle>("Chest")
         ;
     }
 }

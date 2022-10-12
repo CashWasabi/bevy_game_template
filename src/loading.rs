@@ -2,7 +2,7 @@ use crate::GameState;
 use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
 use bevy_kira_audio::AudioSource;
-
+use bevy_ecs_ldtk::LdtkAsset;
 pub struct LoadingPlugin;
 
 /// This plugin loads all assets using [AssetLoader] from a third party bevy plugin
@@ -15,6 +15,7 @@ impl Plugin for LoadingPlugin {
                 .with_collection::<FontAssets>()
                 .with_collection::<AudioAssets>()
                 .with_collection::<TextureAssets>()
+                .with_collection::<LevelAssets>()
                 .continue_to_state(GameState::Menu),
         );
     }
@@ -42,3 +43,10 @@ pub struct TextureAssets {
     #[asset(path = "characters/Adventurer-1.5/adventurer-v1.5-Sheet.png")]
     pub texture_player: Handle<Image>,
 }
+
+#[derive(AssetCollection)]
+pub struct LevelAssets {
+    #[asset(path = "ldtk/demo.ldtk")]
+    pub demo: Handle<LdtkAsset>,
+}
+

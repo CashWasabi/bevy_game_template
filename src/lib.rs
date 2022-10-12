@@ -5,7 +5,7 @@ mod menu;
 mod levels;
 mod animations;
 mod enemy;
-mod player;
+mod players;
 
 use crate::actions::ActionsPlugin;
 use crate::audio::InternalAudioPlugin;
@@ -14,7 +14,7 @@ use crate::menu::MenuPlugin;
 use crate::levels::level::LevelPlugin;
 use crate::animations::animation::InternalAnimationPlugin;
 use crate::enemy::EnemyPlugin;
-use crate::player::PlayerPlugin;
+use crate::players::player::PlayerPlugin;
 use bevy_inspector_egui::WorldInspectorPlugin;
 
 use bevy::app::App;

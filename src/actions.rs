@@ -158,7 +158,7 @@ impl GameControl {
                 keyboard_input.just_released(KeyCode::LControl)
             }
             GameControl::Dashing => {
-                keyboard_input.just_released(KeyCode::Back)
+                keyboard_input.just_released(KeyCode::V)
             }
             GameControl::Attacking => {
                 keyboard_input.just_released(KeyCode::F)
@@ -190,7 +190,7 @@ impl GameControl {
                 keyboard_input.pressed(KeyCode::C)
             }
             GameControl::Dashing => {
-                keyboard_input.pressed(KeyCode::Back)
+                keyboard_input.pressed(KeyCode::V)
             }
             GameControl::Attacking => {
                 keyboard_input.pressed(KeyCode::F)
@@ -225,7 +225,7 @@ impl GameControl {
                 keyboard_input.just_pressed(KeyCode::C)
             }
             GameControl::Dashing => {
-                keyboard_input.just_pressed(KeyCode::Back)
+                keyboard_input.just_pressed(KeyCode::V)
             }
             GameControl::Attacking => {
                 keyboard_input.just_pressed(KeyCode::F)

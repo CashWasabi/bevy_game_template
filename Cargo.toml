@@ -2,7 +2,7 @@
 name = "bevy_game" # ToDo
 version = "0.1.0"
 publish = false
-authors = ["Niklas Eicker <git@nikl.me>"] # ToDo: you are the author ;)
+authors = ["Marcel Ochs <marc3lox@googlemail.com>"] # ToDo: you are the author ;)
 edition = "2021"
 
 [profile.dev.package."*"]
@@ -30,11 +30,10 @@ rand = { version = "0.8.3" }
 winit = { version = "0.26.0", default-features = false }
 image = { version = "0.24", default-features = false }
 benimator = { version = "4.0.0" }
+bevy_rapier2d = { version = "0.17.0" }
 bevy_ecs_ldtk = { version = "0.4.0" }
-heron = { version = "4.0", features = ["2d"] }
-bevy_prototype_lyon = "0.6.0"
-bevy-inspector-egui = "0.12.0"
-bevy_polyline = "0.3"
+bevy_hanabi = { version = "0.4", default-features = false, features = [ "2d" ] }
+bevy-inspector-egui = "0.13.0"
 
 [build-dependencies]
 embed-resource = "1.4"

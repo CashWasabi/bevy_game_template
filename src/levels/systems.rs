@@ -1,46 +1,19 @@
+use crate::loading::LevelAssets;
 use crate::levels::components::*;
+use crate::players::components::*;
+
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
+use bevy_rapier2d::prelude::*;
 
 use std::collections::{HashMap, HashSet};
 
-use heron::prelude::*;
 
-pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    asset_server.watch_for_changes().unwrap();
-
-    let ldtk_handle = asset_server.load(
-        "ldtk/Typical_2D_platformer_example.ldtk"
-    );
+pub fn setup(mut commands: Commands, level_assets: Res<LevelAssets>) {
     commands.spawn_bundle(LdtkWorldBundle {
-        ldtk_handle,
+        ldtk_handle: level_assets.demo.clone(),
         ..Default::default()
     });
-}
-
-pub fn pause_physics_during_load(
-    mut level_events: EventReader<LevelEvent>,
-    mut physics_time: ResMut<PhysicsTime>,
-) {
-    for event in level_events.iter() {
-        match event {
-            LevelEvent::SpawnTriggered(_) => physics_time.set_scale(0.),
-            LevelEvent::Transformed(_) => physics_time.set_scale(1.),
-            _ => (),
-        }
-    }
-}
-
-pub fn dbg_player_items(
-    input: Res<Input<KeyCode>>,
-    mut query: Query<(&Items, &EntityInstance), With<Player>>,
-) {
-    for (items, entity_instance) in query.iter_mut() {
-        if input.just_pressed(KeyCode::P) {
-            dbg!(&items);
-            dbg!(&entity_instance);
-        }
-    }
 }
 
 /// Spawns heron collisions for the walls of a level
@@ -193,23 +166,18 @@ pub fn spawn_wall_collision(
                     for wall_rect in wall_rects {
                         level
                             .spawn()
-                            .insert(CollisionShape::Cuboid {
-                                half_extends: Vec3::new(
+                            .insert(
+                                Collider::cuboid (
                                     (wall_rect.right as f32 - wall_rect.left as f32 + 1.)
                                         * grid_size as f32
                                         / 2.,
                                     (wall_rect.top as f32 - wall_rect.bottom as f32 + 1.)
                                         * grid_size as f32
                                         / 2.,
-                                    0.,
                                 ),
-                                border_radius: None,
-                            })
-                            .insert(RigidBody::Static)
-                            .insert(PhysicMaterial {
-                                friction: 0.1,
-                                ..Default::default()
-                            })
+                            )
+                            .insert(RigidBody::KinematicPositionBased)
+                            .insert(Friction::new(1.0))
                             .insert(Transform::from_xyz(
                                 (wall_rect.left + wall_rect.right + 1) as f32 * grid_size as f32
                                     / 2.,
@@ -225,104 +193,9 @@ pub fn spawn_wall_collision(
     }
 }
 
-pub fn detect_climb_range(
-    mut climbers: Query<&mut Climber>,
-    climbables: Query<&Climbable>,
-    mut collisions: EventReader<CollisionEvent>,
-) {
-    for collision in collisions.iter() {
-        match collision {
-            CollisionEvent::Started(collider_a, collider_b) => {
-                if let Ok(mut climber) = climbers.get_mut(collider_a.rigid_body_entity()) {
-                    if climbables.get(collider_b.rigid_body_entity()).is_ok() {
-                        climber
-                            .intersecting_climbables
-                            .insert(collider_b.rigid_body_entity());
-                    }
-                }
-
-                if let Ok(mut climber) = climbers.get_mut(collider_b.rigid_body_entity()) {
-                    if climbables.get(collider_a.rigid_body_entity()).is_ok() {
-                        climber
-                            .intersecting_climbables
-                            .insert(collider_a.rigid_body_entity());
-                    }
-                }
-            }
-            CollisionEvent::Stopped(collider_a, collider_b) => {
-                if let Ok(mut climber) = climbers.get_mut(collider_a.rigid_body_entity()) {
-                    if climbables.get(collider_b.rigid_body_entity()).is_ok() {
-                        climber
-                            .intersecting_climbables
-                            .remove(&collider_b.rigid_body_entity());
-                    }
-                }
-
-                if let Ok(mut climber) = climbers.get_mut(collider_b.rigid_body_entity()) {
-                    if climbables.get(collider_a.rigid_body_entity()).is_ok() {
-                        climber
-                            .intersecting_climbables
-                            .remove(&collider_a.rigid_body_entity());
-                    }
-                }
-            }
-        }
-    }
-}
-
-pub fn ignore_gravity_if_climbing(
-    mut commands: Commands,
-    query: Query<(Entity, &Climber), Changed<Climber>>,
-) {
-    for (entity, climber) in query.iter() {
-        if climber.climbing {
-            commands
-                .entity(entity)
-                .insert(RigidBody::KinematicVelocityBased);
-        } else {
-            commands.entity(entity).insert(RigidBody::Dynamic);
-        }
-    }
-}
-
-pub fn patrol(mut query: Query<(&mut Transform, &mut Velocity, &mut Patrol)>) {
-    for (mut transform, mut velocity, mut patrol) in query.iter_mut() {
-        if patrol.points.len() <= 1 {
-            continue;
-        }
-
-        let mut new_velocity = Vec3::from((
-            (patrol.points[patrol.index] - transform.translation.truncate()).normalize() * 75.,
-            0.,
-        ));
-
-        if new_velocity.dot(velocity.linear) < 0. {
-            if patrol.index == 0 {
-                patrol.forward = true;
-            } else if patrol.index == patrol.points.len() - 1 {
-                patrol.forward = false;
-            }
-
-            transform.translation.x = patrol.points[patrol.index].x;
-            transform.translation.y = patrol.points[patrol.index].y;
-
-            if patrol.forward {
-                patrol.index += 1;
-            } else {
-                patrol.index -= 1;
-            }
-
-            new_velocity = Vec3::from((
-                (patrol.points[patrol.index] - transform.translation.truncate()).normalize() * 75.,
-                0.,
-            ));
-        }
-
-        velocity.linear = new_velocity;
-    }
-}
-
-const ASPECT_RATIO: f32 = 16. / 9.;
+//const ASPECT_RATIO: f32 = 16. / 9.;
+// TODO(MO): That's just for the demo!
+const ASPECT_RATIO: f32 = 1. / 1.;
 
 pub fn camera_fit_inside_current_level(
     mut camera_query: Query<
@@ -412,77 +285,6 @@ pub fn update_level_selection(
                     *level_selection = LevelSelection::Iid(ldtk_level.level.iid.clone());
                 }
             }
-        }
-    }
-}
-
-pub fn spawn_ground_sensor(
-    mut commands: Commands,
-    detect_ground_for: Query<(Entity, &CollisionShape, &Transform), Added<GroundDetection>>,
-) {
-    for (entity, shape, transform) in detect_ground_for.iter() {
-        if let CollisionShape::Cuboid { half_extends, .. } = shape {
-            let detector_shape = CollisionShape::Cuboid {
-                half_extends: Vec3::new(half_extends.x / 2., 2., 0.),
-                border_radius: None,
-            };
-
-            let sensor_translation = Vec3::new(0., -half_extends.y, 0.) / transform.scale;
-
-            commands.entity(entity).with_children(|builder| {
-                builder
-                    .spawn()
-                    .insert(RigidBody::Sensor)
-                    .insert(detector_shape)
-                    .insert(Transform::from_translation(sensor_translation))
-                    .insert(GlobalTransform::default())
-                    .insert(GroundSensor {
-                        ground_detection_entity: entity,
-                        intersecting_ground_entities: HashSet::new(),
-                    });
-            });
-        }
-    }
-}
-
-pub fn ground_detection(
-    mut ground_detectors: Query<&mut GroundDetection>,
-    mut ground_sensors: Query<(Entity, &mut GroundSensor)>,
-    mut collisions: EventReader<CollisionEvent>,
-    rigid_bodies: Query<&RigidBody>,
-) {
-    for (entity, mut ground_sensor) in ground_sensors.iter_mut() {
-        for collision in collisions.iter() {
-            match collision {
-                CollisionEvent::Started(a, b) => match rigid_bodies.get(b.rigid_body_entity()) {
-                    Ok(RigidBody::Sensor) => {
-                        // don't consider sensors to be "the ground"
-                    }
-                    Ok(_) => {
-                        if a.rigid_body_entity() == entity {
-                            ground_sensor
-                                .intersecting_ground_entities
-                                .insert(b.rigid_body_entity());
-                        }
-                    }
-                    Err(_) => {
-                        panic!("If there's a collision, there should be an entity")
-                    }
-                },
-                CollisionEvent::Stopped(a, b) => {
-                    if a.rigid_body_entity() == entity {
-                        ground_sensor
-                            .intersecting_ground_entities
-                            .remove(&b.rigid_body_entity());
-                    }
-                }
-            }
-        }
-
-        if let Ok(mut ground_detection) =
-            ground_detectors.get_mut(ground_sensor.ground_detection_entity)
-        {
-            ground_detection.on_ground = ground_sensor.intersecting_ground_entities.len() > 0;
         }
     }
 }
