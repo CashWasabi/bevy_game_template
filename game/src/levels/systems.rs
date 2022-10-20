@@ -8,6 +8,10 @@ use bevy_rapier2d::prelude::*;
 
 use std::collections::{HashMap, HashSet};
 
+//const ASPECT_RATIO: f32 = 16. / 9.;
+// TODO(MO): That's just for the demo!
+const ASPECT_RATIO: f32 = 1. / 1.;
+
 
 pub fn setup(mut commands: Commands, level_assets: Res<LevelAssets>) {
     commands.spawn_bundle(LdtkWorldBundle {
@@ -16,7 +20,7 @@ pub fn setup(mut commands: Commands, level_assets: Res<LevelAssets>) {
     });
 }
 
-/// Spawns heron collisions for the walls of a level
+/// Spawns collisions for the walls of a level
 ///
 /// You could just insert a ColliderBundle in to the WallBundle,
 /// but this spawns a different collider for EVERY wall tile.
@@ -192,10 +196,6 @@ pub fn spawn_wall_collision(
         });
     }
 }
-
-//const ASPECT_RATIO: f32 = 16. / 9.;
-// TODO(MO): That's just for the demo!
-const ASPECT_RATIO: f32 = 1. / 1.;
 
 pub fn camera_fit_inside_current_level(
     mut camera_query: Query<

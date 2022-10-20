@@ -6,16 +6,31 @@ use bevy::prelude::{App, ClearColor, Color, Msaa, NonSend, WindowDescriptor};
 use bevy::window::WindowId;
 use bevy::winit::WinitWindows;
 use bevy::DefaultPlugins;
-use bevy_game::GamePlugin;
 use std::io::Cursor;
 use winit::window::Icon;
 
+use game::GamePlugin;
+
+/* TODO(MO): This should be hotloading but it doesnt work correctly
+#[cfg(not(feature = "reload"))]
+use game::players::systems::*;
+
+#[cfg(feature = "reload")]
+use game_hot::*;
+
+#[cfg(feature = "reload")]
+#[hot_lib_reloader::hot_module(dylib = "game")]
+mod game_hot {
+    pub use game::players::systems::*;
+    hot_functions_from_file!("game/src/lib.rs");
+}
+*/
 
 fn main() {
     App::new()
         .insert_resource(ImageSettings::default_nearest())
         .insert_resource(Msaa { samples: 1 })
-        .insert_resource(ClearColor(Color::rgb(0.4, 0.4, 0.4)))
+        .insert_resource(ClearColor(Color::rgb(0.0, 0.0, 0.0)))
         .insert_resource(WindowDescriptor {
             width: 800.,
             height: 600.,

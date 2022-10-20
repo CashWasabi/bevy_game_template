@@ -13,13 +13,12 @@ impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app
         .add_system_set(
-            SystemSet::on_enter(GameState::Playing)
-                .with_system(spawn_ground_sensor)
-        )
-        .add_system_set(
             SystemSet::on_update(GameState::Playing)
+                .with_system(spawn_ground_sensor)
+                .with_system(spawn_wall_sensor)
                 .with_system(update_movement)
                 .with_system(ground_detection)
+                .with_system(wall_detection)
         );
     }
 }

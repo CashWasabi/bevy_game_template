@@ -1,42 +1,15 @@
-[workspace]
-resolver = "2"
-members = ["game"]
-
 [package]
-name = "bevy_game"
+name = "game"
 version = "0.1.0"
 publish = false
 authors = ["Marcel Ochs <marc3lox@googlemail.com>"]
 edition = "2021"
 
-[profile.dev.package."*"]
-opt-level = 3
-
-[profile.dev]
-opt-level = 1
-
-[profile.release]
-lto = true
-codegen-units = 1
-
 [features]
 default = []
-dev = [
-    "bevy/dynamic",
-]
-reload = [
-  "dep:hot-lib-reloader",
-  # This is important on windows for avoiding file locking issues:
-  "bevy/dynamic",
-]
+dynamic = ["bevy/dynamic"]
 
 [dependencies]
-
-# hotload setup
-hot-lib-reloader = { version = "^0.6", optional=true }
-game = { path = "game" }
-
-# bevy things
 bevy = { version = "0.8", default-features = false, features = ["bevy_asset", "bevy_winit", "render", "png", "x11"] }
 bevy_kira_audio = { version = "0.12" }
 bevy_asset_loader = { version = "0.12" }
