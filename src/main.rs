@@ -9,22 +9,8 @@ use bevy::DefaultPlugins;
 use std::io::Cursor;
 use winit::window::Icon;
 
-use game::GamePlugin;
+use bevy_game::GamePlugin;
 
-/* TODO(MO): This should be hotloading but it doesnt work correctly
-#[cfg(not(feature = "reload"))]
-use game::players::systems::*;
-
-#[cfg(feature = "reload")]
-use game_hot::*;
-
-#[cfg(feature = "reload")]
-#[hot_lib_reloader::hot_module(dylib = "game")]
-mod game_hot {
-    pub use game::players::systems::*;
-    hot_functions_from_file!("game/src/lib.rs");
-}
-*/
 
 fn main() {
     App::new()
@@ -55,3 +41,4 @@ fn set_window_icon(windows: NonSend<WinitWindows>) {
         primary.set_window_icon(Some(icon));
     };
 }
+
