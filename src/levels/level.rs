@@ -5,6 +5,7 @@ use crate::GameState;
 use crate::levels::components::WallBundle;
 use crate::levels::systems::{
     setup,
+    pause_physics_during_load,
     spawn_wall_collision,
     camera_fit_inside_current_level,
     update_level_selection,
@@ -32,6 +33,7 @@ impl Plugin for LevelPlugin {
         )
         .add_system_set(
             SystemSet::on_update(GameState::Playing)
+                .with_system(pause_physics_during_load)
                 .with_system(spawn_wall_collision)
                 .with_system(camera_fit_inside_current_level)
                 .with_system(update_level_selection)

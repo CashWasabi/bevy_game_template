@@ -2,7 +2,6 @@ use std::collections::HashSet;
 
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
-use bevy_inspector_egui::Inspectable;
 use crate::physics::components::ColliderBundle;
 use crate::animations::animation::{
     PlayerAnimations,
@@ -50,75 +49,57 @@ pub struct PlayerBundle {
     entity_instance: EntityInstance,
 }
 
-#[derive(Copy, Clone, PartialEq, Debug, Component, Inspectable)]
+#[derive(Copy, Clone, PartialEq, Debug, Component)]
 pub struct PlayerData {
-    #[inspectable(min=1.0, max=1000.0)]
+    pub speed: Vec2,
+    pub force: Vec2,
+
     pub move_speed: f32,
-    #[inspectable(min=1.0, max=1000.0)]
     pub run_speed: f32,
-    #[inspectable(min=1.0, max=1000.0)]
     pub jump_force: f32,
-    #[inspectable(min=1, max=1000)]
-    pub jump_duration: u64,
-    #[inspectable(min=1.0, max=1000.0)]
     pub fall_speed: f32,
-    #[inspectable(min=1.0, max=1000.0)]
-    pub max_fall_speed: f32,
-    #[inspectable(min=1.0, max=1000.0)]
     pub dash_force: f32,
-    #[inspectable(min=1, max=1000)]
     pub dash_duration: u64,
-    #[inspectable(min=1, max=5)]
     pub air_jump_counter: u64,
-    #[inspectable(min=1, max=1000)]
     pub coyote_duration: u64,
-    #[inspectable(min=1, max=1000)]
     pub jump_buffer_duration: u64,
 
-    #[inspectable()]
+    pub jump_active: bool,
+    pub dash_active: bool,
+    pub coyote_time_active: bool,
+    pub jump_buffer_active: bool,
+
     pub player_state: PlayerState,
 }
 
 impl Default for PlayerData {
     fn default() -> Self {
         PlayerData {
-            move_speed: 300.0,
-            run_speed: 300.0,
-            jump_force: 300.0,
-            jump_duration: 50,
-            fall_speed: 300.0,
-            max_fall_speed: 400.0,
+            speed: Vec2::ZERO,
+            force: Vec2::ZERO,
+
+            move_speed: 200.0,
+            run_speed: 350.0,
+            jump_force: 2500.0,
+            fall_speed: 150.0,
             dash_force: 500.0,
             dash_duration: 200,
             air_jump_counter: 2,
             coyote_duration: 150,
-            jump_buffer_duration: 250,
+            jump_buffer_duration: 150,
+
+            // states
+            jump_active: false,
+            dash_active: false,
+            coyote_time_active: false,
+            jump_buffer_active: false,
+
             player_state: PlayerState::default()
-
-            /*
-
-            // maybe add?
-            // everything could have its own system
-            // using player_data as base and writing to it
-
-            // activates when: jump_buffer has been added
-            jump_buffered: bool,
-
-            // activates when: coyote timer has been added
-            coyote_active: bool,
-
-            // activates when: dash has been activated
-            dash_cooldown: bool,
-
-            // counts down as long as not grounded
-            // when grounded reset jumps
-            air_jump_counter: u64
-            */
         }
     }
 }
 
-#[derive(Component, Clone, Copy, Debug, PartialEq, Inspectable)]
+#[derive(Component, Clone, Copy, Debug, PartialEq)]
 pub enum PlayerState {
     Idle,
     Move,
@@ -134,10 +115,8 @@ impl Default for PlayerState {
     }
 }
 
-#[derive(Clone, Default, Component)]
-pub struct GroundDetection {
-    pub on_ground: bool,
-}
+#[derive(Clone, Default, Component, Deref, DerefMut)]
+pub struct GroundDetection (pub bool);
 
 #[derive(Component)]
 pub struct GroundSensor {
@@ -146,10 +125,8 @@ pub struct GroundSensor {
 }
 
 
-#[derive(Clone, Default, Component)]
-pub struct WallDetection {
-    pub touching_wall: bool,
-}
+#[derive(Clone, Default, Component, Deref, DerefMut)]
+pub struct WallDetection (pub bool);
 
 #[derive(Component)]
 pub struct WallSensor {
@@ -163,9 +140,6 @@ pub struct PlayerDirection (pub f32);
 
 #[derive(Component, Deref, DerefMut)]
 pub struct DashTimer (pub Timer);
-
-#[derive(Component, Deref, DerefMut)]
-pub struct JumpTimer (pub Timer);
 
 #[derive(Component, Deref, DerefMut)]
 pub struct JumpBufferTimer(pub Timer);

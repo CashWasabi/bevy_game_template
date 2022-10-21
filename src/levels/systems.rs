@@ -1,5 +1,5 @@
-use crate::loading::LevelAssets;
 use crate::levels::components::*;
+use crate::loading::LevelAssets;
 use crate::players::components::*;
 
 use bevy::prelude::*;
@@ -8,16 +8,26 @@ use bevy_rapier2d::prelude::*;
 
 use std::collections::{HashMap, HashSet};
 
-//const ASPECT_RATIO: f32 = 16. / 9.;
-// TODO(MO): That's just for the demo!
-const ASPECT_RATIO: f32 = 1. / 1.;
-
+const ASPECT_RATIO: f32 = 16. / 9.;
 
 pub fn setup(mut commands: Commands, level_assets: Res<LevelAssets>) {
     commands.spawn_bundle(LdtkWorldBundle {
         ldtk_handle: level_assets.demo.clone(),
         ..Default::default()
     });
+}
+
+pub fn pause_physics_during_load(
+    mut level_events: EventReader<LevelEvent>,
+    mut rapier_config: ResMut<RapierConfiguration>,
+) {
+    for event in level_events.iter() {
+        match event {
+            LevelEvent::SpawnTriggered(_) => rapier_config.physics_pipeline_active = false,
+            LevelEvent::Transformed(_) => rapier_config.physics_pipeline_active = true,
+            _ => (),
+        }
+    }
 }
 
 /// Spawns collisions for the walls of a level
@@ -170,16 +180,14 @@ pub fn spawn_wall_collision(
                     for wall_rect in wall_rects {
                         level
                             .spawn()
-                            .insert(
-                                Collider::cuboid (
-                                    (wall_rect.right as f32 - wall_rect.left as f32 + 1.)
-                                        * grid_size as f32
-                                        / 2.,
-                                    (wall_rect.top as f32 - wall_rect.bottom as f32 + 1.)
-                                        * grid_size as f32
-                                        / 2.,
-                                ),
-                            )
+                            .insert(Collider::cuboid(
+                                (wall_rect.right as f32 - wall_rect.left as f32 + 1.)
+                                    * grid_size as f32
+                                    / 2.,
+                                (wall_rect.top as f32 - wall_rect.bottom as f32 + 1.)
+                                    * grid_size as f32
+                                    / 2.,
+                            ))
                             .insert(RigidBody::KinematicPositionBased)
                             .insert(Friction::new(1.0))
                             .insert(Transform::from_xyz(

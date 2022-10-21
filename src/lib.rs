@@ -8,6 +8,9 @@ pub mod animations;
 pub mod players;
 pub mod physics;
 
+// helper functions
+pub mod helpers;
+
 use crate::actions::ActionsPlugin;
 use crate::audio::InternalAudioPlugin;
 use crate::loading::LoadingPlugin;
@@ -17,8 +20,6 @@ use crate::levels::level::LevelPlugin;
 use crate::animations::animation::InternalAnimationPlugin;
 use crate::enemy::EnemyPlugin;
 use crate::players::player::PlayerPlugin;
-use crate::players::components::PlayerData;
-use bevy_inspector_egui::{Inspectable, InspectorPlugin};
 
 use bevy::app::App;
 use bevy::prelude::*;
@@ -36,12 +37,6 @@ enum GameState {
     Menu,
 }
 
-#[derive(Inspectable, Default)]
-pub struct InspectorData {
-    #[inspectable(collapse)]
-    player_data: PlayerData
-}
-
 pub struct GamePlugin;
 
 impl Plugin for GamePlugin {
@@ -56,7 +51,6 @@ impl Plugin for GamePlugin {
             .add_plugin(InternalAnimationPlugin)
             .add_plugin(EnemyPlugin)
             .add_plugin(PlayerPlugin)
-            .add_plugin(InspectorPlugin::<InspectorData>::new())
             ;
     }
 }
