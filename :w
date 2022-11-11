@@ -292,45 +292,24 @@ pub fn ground_detection(
     mut ground_detectors: Query<&mut GroundDetection>,
     mut ground_sensors: Query<(Entity, &mut GroundSensor)>,
     mut collisions: EventReader<CollisionEvent>,
-    collidables: Query<Entity, (With<Collider>, Without<Sensor>)>,
 ) {
     for (entity, mut ground_sensor) in &mut ground_sensors {
         for collision in collisions.iter() {
             match collision {
-                CollisionEvent::Started(a, b, _) => {
+                CollisionEvent::Started(a, b, _event_flag) => {
                     if *a == entity {
                         ground_sensor.intersecting_ground_entities.insert(*b);
                     }
                     if *b == entity {
                         ground_sensor.intersecting_ground_entities.insert(*a);
                     }
-                    let (sensor, other) = if *a == entity {
-                        (a, b)
-                    } else if *b == entity {
-                        (b, a)
-                    } else {
-                        continue;
-                    };
-
-                    if collidables.contains(*other) {
-                        if *sensor == entity {
-                            ground_sensor.intersecting_ground_entities.insert(*other);
-                        }
-                    }
                 },
-                CollisionEvent::Stopped(a, b, _) => {
-                    let (sensor, other) = if *a == entity {
-                        (a, b)
-                    } else if *b == entity {
-                        (b, a)
-                    } else {
-                        continue;
-                    };
-
-                    if collidables.contains(*other) {
-                        if *sensor == entity {
-                            ground_sensor.intersecting_ground_entities.remove(other);
-                        }
+                CollisionEvent::Stopped(a, b, _event_flag) => {
+                    if *a == entity {
+                        ground_sensor.intersecting_ground_entities.remove(b);
+                    }
+                    if *b == entity {
+                        ground_sensor.intersecting_ground_entities.remove(a);
                     }
                 }
             }
@@ -376,39 +355,24 @@ pub fn wall_detection(
     mut wall_detectors: Query<&mut WallDetection>,
     mut wall_sensors: Query<(Entity, &mut WallSensor)>,
     mut collisions: EventReader<CollisionEvent>,
-    collidables: Query<Entity, (With<Collider>, Without<Sensor>)>,
 ) {
     for (entity, mut wall_sensor) in &mut wall_sensors {
         for collision in collisions.iter() {
             match collision {
-                CollisionEvent::Started(a, b, _) => {
-                    let (sensor, other) = if *a == entity {
-                        (a, b)
-                    } else if *b == entity {
-                        (b, a)
-                    } else {
-                        continue;
-                    };
-
-                    if collidables.contains(*other) {
-                        if *sensor == entity {
-                            ground_sensor.intersecting_ground_entities.insert(*other);
-                        }
+                CollisionEvent::Started(a, b, _event_flag) => {
+                    if *a == entity {
+                        wall_sensor.intersecting_wall_entities.insert(*b);
+                    }
+                    if *b == entity {
+                        wall_sensor.intersecting_wall_entities.insert(*a);
                     }
                 },
-                CollisionEvent::Stopped(a, b, _) => {
-                    let (sensor, other) = if *a == entity {
-                        (a, b)
-                    } else if *b == entity {
-                        (b, a)
-                    } else {
-                        continue;
-                    };
-
-                    if collidables.contains(*other) {
-                        if *sensor == entity {
-                            ground_sensor.intersecting_ground_entities.remove(other);
-                        }
+                CollisionEvent::Stopped(a, b, _event_flag) => {
+                    if *a == entity {
+                        wall_sensor.intersecting_wall_entities.remove(b);
+                    }
+                    if *b == entity {
+                        wall_sensor.intersecting_wall_entities.remove(a);
                     }
                 }
             }
