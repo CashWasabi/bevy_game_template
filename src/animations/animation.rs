@@ -1,16 +1,9 @@
-// New Way
-use bevy::prelude::*;
-use benimator::*;
 use crate::actions::Actions;
+use benimator::*;
+use bevy::prelude::*;
 
+use crate::players::components::{PlayerData, PlayerDirection, PlayerState};
 use crate::GameState;
-use crate::players::components::{
-    PlayerData,
-    PlayerState,
-    PlayerDirection
-};
-
-pub struct InternalAnimationPlugin;
 
 // Create the animation component
 // Note: you may make the animation an asset instead of a component
@@ -40,21 +33,6 @@ impl Clone for AnimationState {
         AnimationState(benimator::State::default())
     }
 }
-
-// This plugin manages every animation in the game
-impl Plugin for InternalAnimationPlugin {
-    fn build(&self, app: &mut App) {
-        app
-        .add_system_set(
-            SystemSet::on_update(GameState::Playing)
-                .with_system(animate)
-                .with_system(update_player_animation)
-                .with_system(flip_sprites)
-        )
-        ;
-    }
-}
-
 
 // Create a resource to store handles of the animations
 #[derive(Component, Clone)]
@@ -99,28 +77,24 @@ impl Default for PlayerAnimations {
     }
 }
 
-fn animate(
+pub fn animate(
     time: Res<Time>,
     mut query: Query<(&mut AnimationState, &mut TextureAtlasSprite, &Animation)>,
 ) {
-    for (
-        mut player, 
-        mut texture, 
-        animation
-    ) in query.iter_mut() {
+    for (mut player, mut texture, animation) in query.iter_mut() {
         // Update the state
         player.update(animation, time.delta());
 
         // Update the texture atlas
         texture.index = player.frame_index();
-    };
+    }
 }
 
-fn flip_sprites(
+pub fn flip_sprites(
     actions: Res<Actions>,
-    mut query: Query<(&mut PlayerDirection, &mut TextureAtlasSprite)>
+    mut query: Query<(&mut PlayerDirection, &mut TextureAtlasSprite)>,
 ) {
-    let dir = actions.player_movement.unwrap_or(Vec2::ZERO);
+    let dir = actions.movement.unwrap_or(Vec2::ZERO);
     for (mut direction, mut sprite) in query.iter_mut() {
         if dir.x != 0. {
             direction.0 = dir.x;
@@ -134,21 +108,15 @@ fn flip_sprites(
     }
 }
 
-fn update_player_animation(
-    mut query: Query<(&PlayerData, &PlayerAnimations, &mut Animation)>,
-) {
-    for (
-        player_data, 
-        player_animations, 
-        mut animation,
-    ) in query.iter_mut() {
+pub fn update_player_animation(mut query: Query<(&PlayerData, &PlayerAnimations, &mut Animation)>) {
+    for (player_data, player_animations, mut animation) in query.iter_mut() {
         let new_animation = match player_data.player_state {
             PlayerState::Idle => player_animations.idle.clone(),
             PlayerState::Move => player_animations.run.clone(),
             PlayerState::Jump => player_animations.jump.clone(),
             PlayerState::Fall => player_animations.fall.clone(),
             PlayerState::Crouch => player_animations.crouch.clone(),
-            PlayerState::Dash => player_animations.dash.clone()
+            PlayerState::Dash => player_animations.dash.clone(),
         };
 
         *animation = new_animation;

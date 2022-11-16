@@ -12,6 +12,7 @@ pub struct ColliderBundle {
     pub restitution: Restitution,
     pub friction: Friction,
     pub density: ColliderMassProperties,
+    pub gravity_scale: GravityScale,
 }
 
 #[derive(Clone, Debug, Default, Bundle, LdtkIntCell)]
@@ -29,11 +30,12 @@ impl From<EntityInstance> for ColliderBundle {
         match entity_instance.identifier.as_ref() {
             "Player" => ColliderBundle {
                 // collider: Collider::cuboid(6.0,14.0),
-                collider: Collider::cuboid(4.0,15.0),
+                collider: Collider::cuboid(4.0, 15.0),
                 rigid_body: RigidBody::Dynamic,
                 rotation_constraints,
-                friction: Friction{
-                    coefficient: 0.0, 
+                gravity_scale: GravityScale(10.0),
+                friction: Friction {
+                    coefficient: 0.0,
                     combine_rule: CoefficientCombineRule::Min,
                 },
                 ..Default::default()

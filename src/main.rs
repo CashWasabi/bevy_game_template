@@ -1,8 +1,7 @@
 // disable console on windows for release builds
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-
-use bevy::{render::texture::ImageSettings};
 use bevy::prelude::{App, ClearColor, Color, Msaa, NonSend, WindowDescriptor};
+use bevy::render::texture::ImageSettings;
 use bevy::window::WindowId;
 use bevy::winit::WinitWindows;
 use bevy::DefaultPlugins;
@@ -10,7 +9,6 @@ use std::io::Cursor;
 use winit::window::Icon;
 
 use bevy_game::GamePlugin;
-
 
 fn main() {
     App::new()
@@ -41,4 +39,3 @@ fn set_window_icon(windows: NonSend<WinitWindows>) {
         primary.set_window_icon(Some(icon));
     };
 }
-

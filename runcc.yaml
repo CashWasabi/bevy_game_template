@@ -1,5 +1,0 @@
-commands:
-  bin: |
-    cargo run --features reload
-  systems: |
-    cargo watch -w game -x "build -p game --features dynamic"

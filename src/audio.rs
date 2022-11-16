@@ -12,8 +12,7 @@ impl Plugin for InternalAudioPlugin {
         app.add_plugin(AudioPlugin)
             .add_system_set(SystemSet::on_enter(GameState::Playing).with_system(start_audio))
             .add_system_set(
-                SystemSet::on_update(GameState::Playing)
-                    // .with_system(control_flying_sound),
+                SystemSet::on_update(GameState::Playing), // .with_system(control_flying_sound),
             );
     }
 }
@@ -38,12 +37,12 @@ fn control_flying_sound(
     if let Some(instance) = audio_instances.get_mut(&audio.0) {
         match instance.state() {
             PlaybackState::Paused { .. } => {
-                if actions.player_movement.is_some() {
+                if actions.movement.is_some() {
                     instance.resume(AudioTween::default());
                 }
             }
             PlaybackState::Playing { .. } => {
-                if actions.player_movement.is_none() {
+                if actions.movement.is_none() {
                     instance.pause(AudioTween::default());
                 }
             }

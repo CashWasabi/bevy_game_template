@@ -1,14 +1,10 @@
 use std::collections::HashSet;
 
+use crate::animations::animation::{Animation, AnimationState, PlayerAnimations};
+use crate::physics::components::ColliderBundle;
+use crate::players::states;
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
-use crate::physics::components::ColliderBundle;
-use crate::animations::animation::{
-    PlayerAnimations,
-    Animation,
-    AnimationState,
-};
-
 
 #[derive(Copy, Clone, PartialEq, Debug, Default, Component)]
 pub struct Player;
@@ -35,7 +31,7 @@ pub struct PlayerBundle {
     // TODO(MO): Do a PlayerMovement Bundle maybe?
     pub direction: PlayerDirection,
     pub player: Player,
-    pub player_data: PlayerData,
+    // pub player_data: PlayerData,
 
     #[from_entity_instance]
     #[bundle]
@@ -51,8 +47,8 @@ pub struct PlayerBundle {
 
 #[derive(Copy, Clone, PartialEq, Debug, Component)]
 pub struct PlayerData {
-    pub speed: Vec2,
-    pub force: Vec2,
+    pub last_frame_force: Vec2,
+    pub last_frame_speed: Vec2,
 
     pub move_speed: f32,
     pub run_speed: f32,
@@ -69,18 +65,18 @@ pub struct PlayerData {
     pub coyote_time_active: bool,
     pub jump_buffer_active: bool,
 
-    pub player_state: PlayerState,
+    pub player_state: states::PlayerState,
 }
 
 impl Default for PlayerData {
     fn default() -> Self {
         PlayerData {
-            speed: Vec2::ZERO,
-            force: Vec2::ZERO,
+            last_frame_force: Vec2::ZERO,
+            last_frame_speed: Vec2::ZERO,
 
             move_speed: 200.0,
             run_speed: 350.0,
-            jump_force: 2500.0,
+            jump_force: 3500.0,
             fall_speed: 150.0,
             dash_force: 500.0,
             dash_duration: 200,
@@ -94,7 +90,7 @@ impl Default for PlayerData {
             coyote_time_active: false,
             jump_buffer_active: false,
 
-            player_state: PlayerState::default()
+            player_state: PlayerState::default(),
         }
     }
 }
@@ -106,7 +102,7 @@ pub enum PlayerState {
     Jump,
     Fall,
     Crouch,
-    Dash
+    Dash,
 }
 
 impl Default for PlayerState {
@@ -116,7 +112,7 @@ impl Default for PlayerState {
 }
 
 #[derive(Clone, Default, Component, Deref, DerefMut)]
-pub struct GroundDetection (pub bool);
+pub struct GroundDetection(pub bool);
 
 #[derive(Component)]
 pub struct GroundSensor {
@@ -124,9 +120,8 @@ pub struct GroundSensor {
     pub intersecting_ground_entities: HashSet<Entity>,
 }
 
-
 #[derive(Clone, Default, Component, Deref, DerefMut)]
-pub struct WallDetection (pub bool);
+pub struct WallDetection(pub bool);
 
 #[derive(Component)]
 pub struct WallSensor {
@@ -134,12 +129,11 @@ pub struct WallSensor {
     pub intersecting_wall_entities: HashSet<Entity>,
 }
 
-
 #[derive(Component, Default, Clone, PartialEq, PartialOrd, Deref, DerefMut)]
-pub struct PlayerDirection (pub f32);
+pub struct PlayerDirection(pub f32);
 
 #[derive(Component, Deref, DerefMut)]
-pub struct DashTimer (pub Timer);
+pub struct DashTimer(pub Timer);
 
 #[derive(Component, Deref, DerefMut)]
 pub struct JumpBufferTimer(pub Timer);

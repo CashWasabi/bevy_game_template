@@ -21,28 +21,23 @@ dev = [
     "bevy/dynamic",
 ]
 reload = [
-  "dep:hot-lib-reloader",
   # This is important on windows for avoiding file locking issues:
   "bevy/dynamic",
 ]
 
 [dependencies]
-# hotload setup
-hot-lib-reloader = { version = "^0.6", optional=true }
-
 # bevy things
 bevy = { version = "0.8", default-features = false, features = ["bevy_asset", "bevy_winit", "render", "png", "x11"] }
 bevy_kira_audio = { version = "0.12" }
 bevy_asset_loader = { version = "0.12" }
-rand = { version = "0.8.3" }
-winit = { version = "0.26.0", default-features = false }
+rand = { version = "0.8" }
+winit = { version = "0.26", default-features = false }
 image = { version = "0.24", default-features = false }
-benimator = { version = "4.0.0" }
-bevy_rapier2d = { version = "0.17.0" }
-bevy_ecs_ldtk = { version = "0.4.0" }
+benimator = { version = "4.0" }
+bevy_rapier2d = { version = "0.17" }
+bevy_ecs_ldtk = { version = "0.4" }
 bevy_hanabi = { version = "0.4", default-features = false, features = [ "2d" ] }
-bevy-inspector-egui = "0.13.0"
-
+statig = "0.1"
 
 [build-dependencies]
 embed-resource = "1.4"

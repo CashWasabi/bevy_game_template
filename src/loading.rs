@@ -1,8 +1,8 @@
 use crate::GameState;
 use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
-use bevy_kira_audio::AudioSource;
 use bevy_ecs_ldtk::LdtkAsset;
+use bevy_kira_audio::AudioSource;
 pub struct LoadingPlugin;
 
 /// This plugin loads all assets using [AssetLoader] from a third party bevy plugin
@@ -49,4 +49,3 @@ pub struct LevelAssets {
     #[asset(path = "ldtk/demo.ldtk")]
     pub demo: Handle<LdtkAsset>,
 }
-

@@ -302,7 +302,7 @@ pub fn restart_level(
     level_query: Query<Entity, With<Handle<LdtkLevel>>>,
     input: Res<Input<KeyCode>>,
 ) {
-    if input.just_pressed(KeyCode::R) {
+    if input.just_pressed(KeyCode::Key0) {
         for level_entity in level_query.iter() {
             commands.entity(level_entity).insert(Respawn);
         }
