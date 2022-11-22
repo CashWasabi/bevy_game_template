@@ -1,10 +1,10 @@
 // disable console on windows for release builds
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 use bevy::prelude::{App, ClearColor, Color, Msaa, NonSend, WindowDescriptor};
-use bevy::render::texture::ImageSettings;
-use bevy::window::WindowId;
+use bevy::window::{WindowId, WindowPlugin};
 use bevy::winit::WinitWindows;
 use bevy::DefaultPlugins;
+use bevy::prelude::PluginGroup;
 use std::io::Cursor;
 use winit::window::Icon;
 
@@ -12,16 +12,19 @@ use bevy_game::GamePlugin;
 
 fn main() {
     App::new()
-        .insert_resource(ImageSettings::default_nearest())
         .insert_resource(Msaa { samples: 1 })
         .insert_resource(ClearColor(Color::rgb(0.0, 0.0, 0.0)))
-        .insert_resource(WindowDescriptor {
-            width: 800.,
-            height: 600.,
-            title: "Bevy Game".to_string(),
-            ..Default::default()
-        })
-        .add_plugins(DefaultPlugins)
+        .add_plugins(DefaultPlugins.set(
+            WindowPlugin{
+                window: WindowDescriptor {
+                    width: 800.,
+                    height: 600.,
+                    title: "Bevy Game".to_string(),
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+        ))
         .add_plugin(GamePlugin)
         .add_startup_system(set_window_icon)
         .run();

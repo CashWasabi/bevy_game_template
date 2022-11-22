@@ -21,7 +21,6 @@ use crate::loading::LoadingPlugin;
 use crate::menu::MenuPlugin;
 use crate::physics::PhysicsPlugin;
 use crate::players::PlayerPlugin;
-use crate::states::StateMachinePlugin;
 
 use bevy::app::App;
 use bevy::prelude::*;
@@ -52,7 +51,6 @@ impl Plugin for GamePlugin {
             .add_plugin(LevelPlugin)
             .add_plugin(InternalAnimationPlugin)
             .add_plugin(EnemyPlugin)
-            .add_plugin(PlayerPlugin)
-            .add_plugin(StateMachinePlugin);
+            .add_plugin(PlayerPlugin);
     }
 }

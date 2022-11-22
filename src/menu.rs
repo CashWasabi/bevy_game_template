@@ -8,16 +8,18 @@ pub struct MenuPlugin;
 /// The menu is only drawn during the State `GameState::Menu` and is removed when that state is exited
 impl Plugin for MenuPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<ButtonColors>()
+        app
+            .insert_resource(ButtonColors::default())
             .add_system_set(SystemSet::on_enter(GameState::Menu).with_system(setup_menu))
             .add_system_set(SystemSet::on_update(GameState::Menu).with_system(click_play_button))
             .add_system_set(SystemSet::on_exit(GameState::Menu).with_system(cleanup_menu));
     }
 }
 
+#[derive(Resource)]
 struct ButtonColors {
-    normal: UiColor,
-    hovered: UiColor,
+    normal: BackgroundColor,
+    hovered: BackgroundColor,
 }
 
 impl Default for ButtonColors {
@@ -34,9 +36,9 @@ fn setup_menu(
     font_assets: Res<FontAssets>,
     button_colors: Res<ButtonColors>,
 ) {
-    commands.spawn_bundle(Camera2dBundle::default());
+    commands.spawn(Camera2dBundle::default());
     commands
-        .spawn_bundle(ButtonBundle {
+        .spawn(ButtonBundle {
             style: Style {
                 size: Size::new(Val::Px(120.0), Val::Px(50.0)),
                 margin: UiRect::all(Val::Auto),
@@ -44,11 +46,11 @@ fn setup_menu(
                 align_items: AlignItems::Center,
                 ..Default::default()
             },
-            color: button_colors.normal,
+            background_color: button_colors.normal,
             ..Default::default()
         })
         .with_children(|parent| {
-            parent.spawn_bundle(TextBundle {
+            parent.spawn(TextBundle {
                 text: Text {
                     sections: vec![TextSection {
                         value: "Play".to_string(),
@@ -69,7 +71,7 @@ fn click_play_button(
     button_colors: Res<ButtonColors>,
     mut state: ResMut<State<GameState>>,
     mut interaction_query: Query<
-        (&Interaction, &mut UiColor),
+        (&Interaction, &mut BackgroundColor),
         (Changed<Interaction>, With<Button>),
     >,
 ) {

@@ -2,8 +2,7 @@ use crate::actions::Actions;
 use benimator::*;
 use bevy::prelude::*;
 
-use crate::players::components::{PlayerData, PlayerDirection, PlayerState};
-use crate::GameState;
+use crate::players::components::PlayerDirection;
 
 // Create the animation component
 // Note: you may make the animation an asset instead of a component
@@ -108,17 +107,18 @@ pub fn flip_sprites(
     }
 }
 
-pub fn update_player_animation(mut query: Query<(&PlayerData, &PlayerAnimations, &mut Animation)>) {
-    for (player_data, player_animations, mut animation) in query.iter_mut() {
-        let new_animation = match player_data.player_state {
-            PlayerState::Idle => player_animations.idle.clone(),
-            PlayerState::Move => player_animations.run.clone(),
-            PlayerState::Jump => player_animations.jump.clone(),
-            PlayerState::Fall => player_animations.fall.clone(),
-            PlayerState::Crouch => player_animations.crouch.clone(),
-            PlayerState::Dash => player_animations.dash.clone(),
-        };
-
-        *animation = new_animation;
+pub fn update_player_animation(mut query: Query<(&PlayerAnimations, &mut Animation)>) {
+    for (player_animations, mut animation) in query.iter_mut() {
+        // TODO(MO): Fix this! Add events
+        // let new_animation = match player_data.player_state {
+        //     PlayerState::Idle => player_animations.idle.clone(),
+        //     PlayerState::Move => player_animations.run.clone(),
+        //     PlayerState::Jump => player_animations.jump.clone(),
+        //     PlayerState::Fall => player_animations.fall.clone(),
+        //     PlayerState::Crouch => player_animations.crouch.clone(),
+        //     PlayerState::Dash => player_animations.dash.clone(),
+        // };
+        //
+        // *animation = new_animation;
     }
 }

@@ -11,7 +11,7 @@ use std::collections::{HashMap, HashSet};
 const ASPECT_RATIO: f32 = 16. / 9.;
 
 pub fn setup(mut commands: Commands, level_assets: Res<LevelAssets>) {
-    commands.spawn_bundle(LdtkWorldBundle {
+    commands.spawn(LdtkWorldBundle {
         ldtk_handle: level_assets.demo.clone(),
         ..Default::default()
     });
@@ -179,7 +179,7 @@ pub fn spawn_wall_collision(
                     // 2. the colliders will be despawned automatically when levels unload
                     for wall_rect in wall_rects {
                         level
-                            .spawn()
+                            .spawn_empty()
                             .insert(Collider::cuboid(
                                 (wall_rect.right as f32 - wall_rect.left as f32 + 1.)
                                     * grid_size as f32
@@ -275,7 +275,7 @@ pub fn update_level_selection(
 ) {
     for (level_handle, level_transform) in level_query.iter() {
         if let Some(ldtk_level) = ldtk_levels.get(level_handle) {
-            let level_bounds = bevy::sprite::Rect {
+            let level_bounds = Rect {
                 min: Vec2::new(level_transform.translation.x, level_transform.translation.y),
                 max: Vec2::new(
                     level_transform.translation.x + ldtk_level.level.px_wid as f32,

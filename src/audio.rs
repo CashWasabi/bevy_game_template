@@ -17,6 +17,7 @@ impl Plugin for InternalAudioPlugin {
     }
 }
 
+#[derive(Resource)]
 struct FlyingAudio(Handle<AudioInstance>);
 
 fn start_audio(mut commands: Commands, audio_assets: Res<AudioAssets>, audio: Res<Audio>) {

@@ -1,5 +1,17 @@
-use bevy::prelude::{Vec2};
+use bevy::prelude::Vec2;
 use statig::prelude::*;
+
+#[derive(Debug, Clone)]
+pub enum Event {
+    Idle,
+    Walk,
+    Run,
+    Jump,
+    Crouch,
+    Dash,
+    Push,
+    Pull,
+}
 
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub struct PlayerStateMachine {
@@ -50,43 +62,19 @@ impl Default for PlayerStateMachine {
     }
 }
 
-pub enum Event {
-    Idle,
-    Walk,
-    Run,
-    Jump,
-    Crouch,
-    Dash,
-    Push,
-    Pull
-}
-
-impl StateMachine for PlayerStateMachine { 
+impl StateMachine for PlayerStateMachine {
     type State = State;
-    
+
     type Superstate<'a> = Superstate;
-    
+
     type Event = Event;
-    
+
     const INIT_STATE: State = State::idle();
 }
 
-// Transition(State::move())
-// Super
-// Handled
 #[state_machine]
 impl PlayerStateMachine {
-    #[action]
-    fn enter_grounded(&mut self, event: &Event) {
-        // here we should remove command
-    }
-
-    #[action]
-    fn exit_grounded(&mut self, event: &Event) {
-        // here we should remove command
-    }
-
-    #[superstate(entry_action="enter_grounded", exit_action="exit_grounded")]
+    #[superstate]
     fn grounded(&mut self, event: &Event) -> Response<State> {
         match event {
             Event::Idle => Transition(State::idle()),
@@ -96,41 +84,29 @@ impl PlayerStateMachine {
             Event::Crouch => Transition(State::crouch()),
             Event::Push => Transition(State::push()),
             Event::Pull => Transition(State::pull()),
-            _ => Super
+            _ => Super,
         }
     }
 
-    #[action]
-    fn enter_jump(&mut self, event: &Event) {}
-
-    #[action]
-    fn exit_jump(&mut self, event: &Event) {}
-
-    #[superstate(entry_action="enter_jump", exit_action="exit_jump")]
+    #[superstate]
     fn jump(&mut self, event: &Event) -> Response<State> {
         match event {
             Event::Push => Transition(State::push()),
             Event::Pull => Transition(State::pull()),
-            _ => Super
+            _ => Super,
         }
     }
 
-    #[action]
-    fn enter_attack(&mut self, event: &Event) {}
-
-    #[action]
-    fn exit_attack(&mut self, event: &Event) {}
-
-    #[superstate(entry_action="enter_attack", exit_action="exit_attack")]
+    #[superstate]
     fn attack(&mut self, event: &Event) -> Response<State> {
         match event {
             Event::Push => Transition(State::push()),
             Event::Pull => Transition(State::pull()),
-            _ => Super
+            _ => Super,
         }
     }
 
-    #[state(superstate="grounded")]
+    #[state(superstate = "grounded")]
     fn idle(&mut self, event: &Event) -> Response<State> {
         match event {
             Event::Idle => Handled,
@@ -138,7 +114,7 @@ impl PlayerStateMachine {
         }
     }
 
-    #[state(superstate="grounded")]
+    #[state(superstate = "grounded")]
     fn walk(&mut self, event: &Event) -> Response<State> {
         match event {
             Event::Walk => Handled,
@@ -146,7 +122,7 @@ impl PlayerStateMachine {
         }
     }
 
-    #[state(superstate="grounded")]
+    #[state(superstate = "grounded")]
     fn run(&mut self, event: &Event) -> Response<State> {
         match event {
             Event::Run => Handled,
@@ -154,7 +130,7 @@ impl PlayerStateMachine {
         }
     }
 
-    #[state(superstate="grounded")]
+    #[state(superstate = "grounded")]
     fn crouch(&mut self, event: &Event) -> Response<State> {
         match event {
             Event::Crouch => Handled,
@@ -162,13 +138,7 @@ impl PlayerStateMachine {
         }
     }
 
-    #[action]
-    fn enter_dash(&mut self, event: &Event) {}
-
-    #[action]
-    fn exit_dash(&mut self, event: &Event) {}
-
-    #[state(superstate="grounded", entry_action="enter_dash", exit_action="exit_dash")]
+    #[state(superstate = "grounded")]
     fn dash(&mut self, event: &Event) -> Response<State> {
         match event {
             Event::Dash => Handled,
@@ -176,7 +146,7 @@ impl PlayerStateMachine {
         }
     }
 
-    #[state(superstate="attack")]
+    #[state(superstate = "attack")]
     fn push(&mut self, event: &Event) -> Response<State> {
         match event {
             Event::Push => Handled,
@@ -184,7 +154,7 @@ impl PlayerStateMachine {
         }
     }
 
-    #[state(superstate="attack")]
+    #[state(superstate = "attack")]
     fn pull(&mut self, event: &Event) -> Response<State> {
         match event {
             Event::Pull => Handled,

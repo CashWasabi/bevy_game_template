@@ -1,20 +1,21 @@
 use std::collections::HashSet;
-use std::time::Duration;
 
 use bevy::prelude::*;
+use bevy::utils::Duration;
 use bevy_rapier2d::prelude::*;
 
 use crate::actions::Actions;
 use crate::players::components::*;
-use crate::players::states;
+use crate::states::states::Event as StateEvent;
+use crate::states::StateMachineComponent;
 
 // TODO(MO): Build an input buffer so that we don't miss out on inputs
 pub fn update_player(
     actions: Res<Actions>,
-    mut state_machine: Res<states::PlayerStateMachine>,
     mut commands: Commands,
     mut query: Query<(
         Entity,
+        &mut StateMachineComponent,
         &mut ExternalForce,
         &mut Velocity,
         &mut GravityScale,
@@ -26,6 +27,7 @@ pub fn update_player(
     let movement = actions.movement.unwrap_or(Vec2::ZERO);
     for (
         entity,
+        mut state_machine,
         mut external_force,
         mut velocity,
         mut gravity_scale,
@@ -37,63 +39,62 @@ pub fn update_player(
         let mut force = Vec2::ZERO;
         let mut speed = Vec2::ZERO;
 
-        state_machine.handle(&state::Event::Idle);
-        println!("State: {:?}", data.state()); // State: Idle
+        // TODO(MO): How should we handle events now?
+        state_machine.handle(&StateEvent::Idle);
 
         // only use direct vel on x
         velocity.linvel.x = speed.x * direction.0;
 
         // keep data for next frame
-        // data.last_frame_speed = speed;
-        // data.last_frame_force = force;
+        let mut context = &mut *state_machine;
+        context.last_frame_speed = speed;
+        context.last_frame_force = force;
     }
 }
 
 pub fn update_jump_buffer(
     time: Res<Time>,
     actions: Res<Actions>,
-    mut state_machine: Res<states::PlayerStateMachine>,
-    mut query: Query<&mut JumpBufferTimer>,
+    mut query: Query<(&mut StateMachineComponent, &mut JumpBufferTimer)>,
 ) {
-    for mut timer in &mut query {
-        // timer.tick(time.delta());
-        //
-        // if actions.jump {
-        //     let t = Duration::from_millis(data.jump_buffer_duration);
-        //     timer.set_duration(t);
-        // }
-        //
-        // if timer.finished() {
-        //     data.jump_buffer_active = false;
-        // } else if !data.jump_buffer_active {
-        //     data.jump_buffer_active = true;
-        // }
+    for (mut state_machine, mut timer) in &mut query {
+        timer.tick(time.delta());
+
+        if actions.jump_pressed {
+            let t = Duration::from_millis((*state_machine).jump_buffer_duration);
+            timer.set_duration(t);
+        }
+
+        if timer.finished() {
+            (*state_machine).jump_buffer_active = false;
+        } else if !(*state_machine).jump_buffer_active {
+            (*state_machine).jump_buffer_active = true;
+        }
     }
 }
 
 pub fn update_coyote_time(
-    time: Res<Time>, 
-    mut state_machine: Res<states::PlayerStateMachine>,
-    mut query: Query<&mut CoyoteTimer>
+    time: Res<Time>,
+    mut query: Query<(&mut StateMachineComponent, &mut CoyoteTimer)>,
 ) {
-    for mut timer in &mut query {
-        // timer.tick(time.delta());
-        //
-        // if timer.finished() {
-        //     data.coyote_time_active = false;
-        // } else if !data.coyote_time_active {
-        //     data.coyote_time_active = true;
-        // }
+    for (mut state_machine, mut timer) in &mut query {
+        timer.tick(time.delta());
+
+        if timer.finished() {
+            (*state_machine).coyote_time_active = false;
+        } else if !(*state_machine).coyote_time_active {
+            (*state_machine).coyote_time_active = true;
+        }
     }
 }
 
 pub fn dash_cooldown(
-    time: Res<Time>, 
-    mut state_machine: Res<states::PlayerStateMachine>,
-    mut query: Query<&mut DashTimer>) {
-    for mut timer in &mut query {
-        // timer.tick(time.delta());
-        // data.dash_active = if timer.finished() { false } else { true };
+    time: Res<Time>,
+    mut query: Query<(&mut StateMachineComponent, &mut DashTimer)>,
+) {
+    for (mut state_machine, mut timer) in &mut query {
+        timer.tick(time.delta());
+        (*state_machine).dash_active = if timer.finished() { false } else { true };
     }
 }
 
@@ -111,7 +112,7 @@ pub fn spawn_ground_sensor(
 
             commands.entity(entity).with_children(|builder| {
                 builder
-                    .spawn()
+                    .spawn_empty()
                     .insert(ActiveEvents::COLLISION_EVENTS)
                     .insert(detector_shape)
                     .insert(Sensor)
@@ -197,7 +198,7 @@ pub fn spawn_wall_sensor(
 
             commands.entity(entity).with_children(|builder| {
                 builder
-                    .spawn()
+                    .spawn_empty()
                     .insert(ActiveEvents::COLLISION_EVENTS)
                     .insert(left_detector_shape)
                     .insert(Sensor)
@@ -211,7 +212,7 @@ pub fn spawn_wall_sensor(
 
             commands.entity(entity).with_children(|builder| {
                 builder
-                    .spawn()
+                    .spawn_empty()
                     .insert(ActiveEvents::COLLISION_EVENTS)
                     .insert(right_detector_shape)
                     .insert(Sensor)

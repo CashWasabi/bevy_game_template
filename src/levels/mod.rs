@@ -39,4 +39,3 @@ impl Plugin for LevelPlugin {
             .register_ldtk_entity::<PlayerBundle>("Player");
     }
 }
-
