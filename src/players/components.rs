@@ -1,25 +1,10 @@
-use std::collections::HashSet;
-
 use crate::animations::animation::{Animation, AnimationState, PlayerAnimations};
-use crate::physics::components::ColliderBundle;
-use crate::states::StateMachineComponent;
+use crate::physics::components::{ColliderBundle, GroundDetection, WallDetection};
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 
 #[derive(Copy, Clone, PartialEq, Debug, Default, Component)]
 pub struct Player;
-
-#[derive(Debug, Clone)]
-pub enum PlayerStateEvent {
-    Idle,
-    Walk,
-    Run,
-    Jump,
-    Crouch,
-    Dash,
-    Push,
-    Pull,
-}
 
 #[derive(Clone, Default, Bundle, LdtkEntity)]
 pub struct PlayerBundle {
@@ -43,7 +28,6 @@ pub struct PlayerBundle {
     // TODO(MO): Do a PlayerMovement Bundle maybe?
     pub direction: PlayerDirection,
     pub player: Player,
-    pub state_machine: StateMachineComponent,
 
     #[from_entity_instance]
     #[bundle]
@@ -55,24 +39,6 @@ pub struct PlayerBundle {
     // The whole EntityInstance can be stored directly as an EntityInstance component
     #[from_entity_instance]
     entity_instance: EntityInstance,
-}
-
-#[derive(Clone, Default, Component, Deref, DerefMut)]
-pub struct GroundDetection(pub bool);
-
-#[derive(Component)]
-pub struct GroundSensor {
-    pub ground_detection_entity: Entity,
-    pub intersecting_ground_entities: HashSet<Entity>,
-}
-
-#[derive(Clone, Default, Component, Deref, DerefMut)]
-pub struct WallDetection(pub bool);
-
-#[derive(Component)]
-pub struct WallSensor {
-    pub wall_detection_entity: Entity,
-    pub intersecting_wall_entities: HashSet<Entity>,
 }
 
 #[derive(Component, Default, Clone, PartialEq, PartialOrd, Deref, DerefMut)]

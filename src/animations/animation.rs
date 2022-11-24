@@ -1,8 +1,9 @@
-use crate::actions::Actions;
+use crate::actions::game_control::Action;
+use crate::players::components::PlayerDirection;
+
 use benimator::*;
 use bevy::prelude::*;
-
-use crate::players::components::PlayerDirection;
+use leafwing_input_manager::prelude::*;
 
 // Create the animation component
 // Note: you may make the animation an asset instead of a component
@@ -90,11 +91,16 @@ pub fn animate(
 }
 
 pub fn flip_sprites(
-    actions: Res<Actions>,
-    mut query: Query<(&mut PlayerDirection, &mut TextureAtlasSprite)>,
+    mut query: Query<(
+        &ActionState<Action>,
+        &mut PlayerDirection,
+        &mut TextureAtlasSprite,
+    )>,
 ) {
-    let dir = actions.movement.unwrap_or(Vec2::ZERO);
-    for (mut direction, mut sprite) in query.iter_mut() {
+    for (_action_state, mut direction, mut sprite) in query.iter_mut() {
+        // TODO(MO): fix stuff
+        // let dir = action_state.direction().unwrap_or(Vec2::ZERO);
+        let dir = Vec2::ZERO;
         if dir.x != 0. {
             direction.0 = dir.x;
 
@@ -108,7 +114,7 @@ pub fn flip_sprites(
 }
 
 pub fn update_player_animation(mut query: Query<(&PlayerAnimations, &mut Animation)>) {
-    for (player_animations, mut animation) in query.iter_mut() {
+    for (_player_animations, mut _animation) in query.iter_mut() {
         // TODO(MO): Fix this! Add events
         // let new_animation = match player_data.player_state {
         //     PlayerState::Idle => player_animations.idle.clone(),

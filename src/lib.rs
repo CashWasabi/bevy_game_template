@@ -9,9 +9,6 @@ pub mod physics;
 pub mod players;
 pub mod states;
 
-// helper functions
-pub mod helpers;
-
 use crate::actions::ActionsPlugin;
 use crate::animations::InternalAnimationPlugin;
 use crate::audio::InternalAudioPlugin;

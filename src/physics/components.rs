@@ -1,6 +1,26 @@
+use bevy::utils::HashSet;
+
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 use bevy_rapier2d::prelude::*;
+
+#[derive(Clone, Default, Component, Deref, DerefMut)]
+pub struct GroundDetection(pub bool);
+
+#[derive(Component)]
+pub struct GroundSensor {
+    pub ground_detection_entity: Entity,
+    pub intersecting_ground_entities: HashSet<Entity>,
+}
+
+#[derive(Clone, Default, Component, Deref, DerefMut)]
+pub struct WallDetection(pub bool);
+
+#[derive(Component)]
+pub struct WallSensor {
+    pub wall_detection_entity: Entity,
+    pub intersecting_wall_entities: HashSet<Entity>,
+}
 
 #[derive(Clone, Debug, Default, Bundle, LdtkIntCell)]
 pub struct ColliderBundle {
