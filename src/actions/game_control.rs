@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use leafwing_input_manager::prelude::*;
 use leafwing_input_manager::orientation::Direction;
 
-#[derive(Actionlike, Clone)]
+#[derive(Actionlike, Clone, Debug)]
 pub enum Action {
     Up,
     Down,
@@ -12,8 +12,6 @@ pub enum Action {
     Jump,
     Dash,
     Crouch,
-    PrimaryAbility,
-    MindMeld
 }
 
 impl Action {
@@ -35,7 +33,7 @@ impl Action {
     }
 }
 
-fn default_input_map() -> InputMap<Action> {
+pub fn default_input_map() -> InputMap<Action> {
     // This allows us to replace `Action::Up` with `Up`,
     // significantly reducing boilerplate
     use Action::*;
@@ -54,7 +52,8 @@ fn default_input_map() -> InputMap<Action> {
         (KeyCode::D, Right),
 
         // Abilities
-        (KeyCode::F, PrimaryAbility),
-        (KeyCode::Space, MindMeld),
+        (KeyCode::F, Dash),
+        (KeyCode::Space, Jump),
+        (KeyCode::C, Crouch),
     ])
 }

@@ -45,7 +45,7 @@ bevy_hanabi = { version = "0.5", default-features = false, features = [ "2d" ] }
 leafwing-input-manager = { version = "0.7.0" }
 
 # additional things
-statig = "0.1"
+statig = "0.2"
 
 [build-dependencies]
 embed-resource = "1.4"

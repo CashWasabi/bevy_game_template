@@ -14,7 +14,6 @@ impl Plugin for ActionsPlugin {
         app.add_plugin(InputManagerPlugin::<game_control::Action>::default())
             .add_system_set(
                 SystemSet::on_update(GameState::Playing)
-                    .with_system(systems::update_candle_controller)
                     .with_system(systems::update_dasher_controller),
             );
     }

@@ -1,12 +1,14 @@
 use crate::animations::animation::{Animation, AnimationState, PlayerAnimations};
 use crate::physics::components::{ColliderBundle, GroundDetection, WallDetection};
+use crate::actions::components::DasherControllerBundle;
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
+
 
 #[derive(Copy, Clone, PartialEq, Debug, Default, Component)]
 pub struct Player;
 
-#[derive(Clone, Default, Bundle, LdtkEntity)]
+#[derive(Default, Bundle, LdtkEntity)]
 pub struct PlayerBundle {
     #[sprite_sheet_bundle(
         "characters/Adventurer-1.5/adventurer-v1.5-Sheet.png",
@@ -36,6 +38,10 @@ pub struct PlayerBundle {
     pub worldly: Worldly,
     pub ground_detection: GroundDetection,
     pub wall_detection: WallDetection,
+
+    // make the following 3 a bundle!
+    #[bundle]
+    pub controller_bundle: DasherControllerBundle,
     // The whole EntityInstance can be stored directly as an EntityInstance component
     #[from_entity_instance]
     entity_instance: EntityInstance,

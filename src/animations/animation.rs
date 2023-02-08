@@ -13,7 +13,7 @@ impl Default for Animation {
     fn default() -> Self {
         Animation(benimator::Animation::from_indices(
             0..=1,
-            FrameRate::from_fps(12.0),
+            FrameRate::from_fps(6.0),
         ))
     }
 }

@@ -1,7 +1,6 @@
 pub mod actions;
 pub mod animations;
 pub mod audio;
-pub mod enemy;
 pub mod levels;
 pub mod loading;
 pub mod menu;
@@ -12,7 +11,6 @@ pub mod states;
 use crate::actions::ActionsPlugin;
 use crate::animations::InternalAnimationPlugin;
 use crate::audio::InternalAudioPlugin;
-use crate::enemy::EnemyPlugin;
 use crate::levels::LevelPlugin;
 use crate::loading::LoadingPlugin;
 use crate::menu::MenuPlugin;
@@ -47,7 +45,6 @@ impl Plugin for GamePlugin {
             .add_plugin(PhysicsPlugin)
             .add_plugin(LevelPlugin)
             .add_plugin(InternalAnimationPlugin)
-            .add_plugin(EnemyPlugin)
             .add_plugin(PlayerPlugin);
     }
 }

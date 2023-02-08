@@ -2,6 +2,7 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 use crate::players::components::*;
+use crate::states::DasherStateMachine;
 
 pub fn update_player(
     mut _commands: Commands,
@@ -11,28 +12,24 @@ pub fn update_player(
         &mut Velocity,
         &mut GravityScale,
         &PlayerDirection,
+        &DasherStateMachine,
     )>,
 ) {
-    // TODO(MO): Fix this!
-    // let movement = actions.movement.unwrap_or(Vec2::ZERO);
-    for (_entity, mut _external_force, mut velocity, mut _gravity_scale, direction) in &mut query {
-        // let movement = Vec2::ZERO;
-        // let mut force = Vec2::ZERO;
-        let speed = Vec2::ZERO;
-
-        // TODO(MO): How should we handle events now?
-        // state_machine.handle(&StateEvent::Idle);
-
-        // only use direct vel on x
-        velocity.linvel.x = speed.x * direction.0;
-
-        // keep data for next frame
-        // let mut context = &mut *state_machine;
-        // context.last_frame_speed = speed;
-        // context.last_frame_force = force;
+    for (
+        _entity,
+        mut _external_force,
+        mut velocity,
+        mut _gravity_scale,
+        direction,
+        state_machine,
+    ) in &mut query {
+        // velocity.linvel.x = state_machine.velocity.x * direction.0;
+        velocity.linvel.x = state_machine.velocity.x * 100.0;
     }
 }
 
+
+// TODO(MO): Add input buffer in general to inputs
 pub fn update_jump_buffer(time: Res<Time>, mut query: Query<&mut JumpBufferTimer>) {
     for mut timer in &mut query {
         timer.tick(time.delta());
@@ -46,6 +43,7 @@ pub fn update_jump_buffer(time: Res<Time>, mut query: Query<&mut JumpBufferTimer
     }
 }
 
+// TODO(MO): Add input buffer in general to inputs
 pub fn update_coyote_time(time: Res<Time>, mut query: Query<&mut CoyoteTimer>) {
     for mut timer in &mut query {
         timer.tick(time.delta());
@@ -58,6 +56,7 @@ pub fn update_coyote_time(time: Res<Time>, mut query: Query<&mut CoyoteTimer>) {
     }
 }
 
+// TODO(MO): Add skill cooldown in general! There might be a leafwing lib that does this already.
 pub fn dash_cooldown(time: Res<Time>, mut query: Query<&mut DashTimer>) {
     for mut timer in &mut query {
         timer.tick(time.delta());
