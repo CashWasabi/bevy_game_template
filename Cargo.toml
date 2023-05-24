@@ -1,6 +1,6 @@
 [package]
 name = "bevy_game"
-version = "0.1.0"
+version = "0.1.1"
 publish = false
 authors = ["Marcel Ochs <marc3lox@googlemail.com>"]
 edition = "2021"
@@ -16,36 +16,52 @@ lto = true
 codegen-units = 1
 
 [features]
-default = []
-dev = [ "bevy/dynamic" ]
-reload = [
-  # This is important on windows for avoiding file locking issues:
-  "bevy/dynamic",
+dev = [
+    "bevy/bevy_dylib",
+]
+
+# Bevy defaults minus audio and some other not needed things
+default = [
+    "bevy/animation",
+    "bevy/bevy_asset",
+    "bevy/bevy_scene",
+    "bevy/bevy_winit",
+    "bevy/bevy_core_pipeline",
+    "bevy/bevy_pbr",
+    "bevy/bevy_gltf",
+    "bevy/bevy_render",
+    "bevy/bevy_sprite",
+    "bevy/bevy_text",
+    "bevy/bevy_ui",
+    "bevy/png",
+    "bevy/hdr",
+    "bevy/zstd",
+    "bevy/x11",
+    "bevy/ktx2",
+    "bevy/filesystem_watcher",
+    "bevy/tonemapping_luts"
 ]
 
 [dependencies]
 # bevy things
-bevy = { version = "0.9", default-features = false, features = ["bevy_asset", "bevy_winit", "render", "png", "x11"] }
-rand = { version = "0.8" }
+bevy = { version = "^0.10", default-features = false }
+rand = { version = "^0.8" }
 
 # keep the dependency up to date with bevy_winit
-winit = { version = "0.27", default-features = false }
-image = { version = "0.24", default-features = false }
+winit = { version = "^0.27", default-features = false, features = [ "wayland", "x11" ]}
+image = { version = "^0.24", default-features = false }
 
 # plugins etc.
-bevy_kira_audio = { version = "0.13" }
-# bevy_asset_loader = { git = "https://github.com/NiklasEi/bevy_asset_loader", branch = "bevy_main" }
-bevy_asset_loader = { version = "0.14" }
-iyes_loopless = { version = "0.9" }
-bevy-inspector-egui = { version = "0.14" }
-benimator = { version = "4.1" }
-bevy_rapier2d = { version = "0.19" }
-bevy_ecs_ldtk = { version = "0.5" }
-bevy_hanabi = { version = "0.5", default-features = false, features = [ "2d" ] }
-leafwing-input-manager = { version = "0.7.0" }
-
-# additional things
-statig = "0.2"
+bevy_kira_audio = { version = "^0.15" }
+bevy_asset_loader = { version = "^0.16" }
+bevy-inspector-egui = { version = "^0.18" }
+benimator = { version = "^4.1" }
+bevy_rapier2d = { version = "^0.21" }
+bevy_ecs_ldtk = { version = "^0.7" }
+bevy_hanabi = { version = "^0.6", default-features = false, features = [ "2d" ] }
+leafwing-input-manager = { version = "^0.9" }
+itertools = { version = "^0.10" }
+statig = { version = "^0.3" }
 
 [build-dependencies]
 embed-resource = "1.4"

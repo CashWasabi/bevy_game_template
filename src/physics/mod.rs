@@ -18,12 +18,14 @@ impl Plugin for PhysicsPlugin {
             //     ..Default::default()
             // })
             .add_plugin(RapierDebugRenderPlugin::default())
-            .add_system_set(
-                SystemSet::on_update(GameState::Playing)
-                    .with_system(systems::spawn_ground_sensor)
-                    .with_system(systems::spawn_wall_sensor)
-                    .with_system(systems::ground_detection)
-                    .with_system(systems::wall_detection)
-            );
+            .add_systems(
+                (
+                    systems::spawn_ground_sensor,
+                    systems::spawn_wall_sensor,
+                    systems::ground_detection,
+                    systems::wall_detection,
+                ).in_set(OnUpdate(GameState::Playing))
+            )
+            ;
     }
 }

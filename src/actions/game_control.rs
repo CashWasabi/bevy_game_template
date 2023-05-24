@@ -1,6 +1,5 @@
 use bevy::prelude::*;
 use leafwing_input_manager::prelude::*;
-use leafwing_input_manager::orientation::Direction;
 
 #[derive(Actionlike, Clone, Debug)]
 pub enum Action {
@@ -12,25 +11,6 @@ pub enum Action {
     Jump,
     Dash,
     Crouch,
-}
-
-impl Action {
-    const DIRECTIONS: [Self; 4] = [
-        Action::Up,
-        Action::Down,
-        Action::Left,
-        Action::Right,
-    ];
-
-    fn direction(self) -> Option<Direction> {
-        match self {
-            Action::Up => Some(Direction::NORTH),
-            Action::Down => Some(Direction::SOUTH),
-            Action::Left => Some(Direction::EAST),
-            Action::Right => Some(Direction::WEST),
-            _ => None,
-        }
-    }
 }
 
 pub fn default_input_map() -> InputMap<Action> {
@@ -52,7 +32,7 @@ pub fn default_input_map() -> InputMap<Action> {
         (KeyCode::D, Right),
 
         // Abilities
-        (KeyCode::F, Dash),
+        (KeyCode::LShift, Dash),
         (KeyCode::Space, Jump),
         (KeyCode::C, Crouch),
     ])

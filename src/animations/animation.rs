@@ -1,4 +1,4 @@
-use crate::actions::game_control::Action;
+// use crate::actions::game_control::Action;
 use crate::players::components::PlayerDirection;
 
 use benimator::*;
@@ -92,12 +92,16 @@ pub fn animate(
 
 pub fn flip_sprites(
     mut query: Query<(
-        &ActionState<Action>,
+        // &ActionState<Action>,
         &mut PlayerDirection,
         &mut TextureAtlasSprite,
     )>,
 ) {
-    for (_action_state, mut direction, mut sprite) in query.iter_mut() {
+    for (
+        // _action_state,
+        mut direction,
+        mut sprite
+    ) in query.iter_mut() {
         // TODO(MO): fix stuff
         // let dir = action_state.direction().unwrap_or(Vec2::ZERO);
         let dir = Vec2::ZERO;
@@ -113,18 +117,16 @@ pub fn flip_sprites(
     }
 }
 
-pub fn update_player_animation(mut query: Query<(&PlayerAnimations, &mut Animation)>) {
-    for (_player_animations, mut _animation) in query.iter_mut() {
-        // TODO(MO): Fix this! Add events
-        // let new_animation = match player_data.player_state {
-        //     PlayerState::Idle => player_animations.idle.clone(),
-        //     PlayerState::Move => player_animations.run.clone(),
-        //     PlayerState::Jump => player_animations.jump.clone(),
-        //     PlayerState::Fall => player_animations.fall.clone(),
-        //     PlayerState::Crouch => player_animations.crouch.clone(),
-        //     PlayerState::Dash => player_animations.dash.clone(),
-        // };
-        //
-        // *animation = new_animation;
-    }
-}
+// pub fn update_player_animation(mut query: Query<(&PlayerAnimations, &mut Animation, &DasherStateMachine)>) {
+//     for (player_animations, mut animation, state_machine) in query.iter_mut() {
+//         // TODO(MO): Fix this! use StateMachine States now!
+//         let new_animation = match state_machine.state() {
+//             DasherState::Idle{..} => player_animations.idle.clone(),
+//             DasherState::Walk{..} => player_animations.run.clone(),
+//             DasherState::Dash{..} => player_animations.dash.clone(),
+//             DasherState::Fall{..} => player_animations.fall.clone(),
+//         };
+//
+//         *animation = new_animation;
+//     }
+// }

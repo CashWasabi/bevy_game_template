@@ -43,8 +43,8 @@ pub struct SensorBundle {
     pub rotation_constraints: LockedAxes,
 }
 
-impl From<EntityInstance> for ColliderBundle {
-    fn from(entity_instance: EntityInstance) -> ColliderBundle {
+impl From<&EntityInstance> for ColliderBundle {
+    fn from(entity_instance: &EntityInstance) -> ColliderBundle {
         let rotation_constraints = LockedAxes::ROTATION_LOCKED;
 
         match entity_instance.identifier.as_ref() {

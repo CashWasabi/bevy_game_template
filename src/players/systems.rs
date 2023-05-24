@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 use crate::players::components::*;
-use crate::states::DasherStateMachine;
+// use crate::states::DasherStateMachine;
 
 pub fn update_player(
     mut _commands: Commands,
@@ -12,7 +12,7 @@ pub fn update_player(
         &mut Velocity,
         &mut GravityScale,
         &PlayerDirection,
-        &DasherStateMachine,
+        // &DasherStateMachine,
     )>,
 ) {
     for (
@@ -21,10 +21,10 @@ pub fn update_player(
         mut velocity,
         mut _gravity_scale,
         direction,
-        state_machine,
+        // state_machine,
     ) in &mut query {
         // velocity.linvel.x = state_machine.velocity.x * direction.0;
-        velocity.linvel.x = state_machine.velocity.x * 100.0;
+        velocity.linvel.x = 0.0;
     }
 }
 

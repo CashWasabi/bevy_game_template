@@ -7,7 +7,9 @@ use std::fmt::Debug;
 pub enum Event {
     Idle,
     WalkPressed,
+    WalkReleased,
     DashPressed,
+    DashReleased,
     Grounded,
     Airborne,
 }
@@ -15,12 +17,16 @@ pub enum Event {
 #[derive(Copy, Clone, Debug)]
 pub struct Dasher {
     pub velocity: Vec2,
+    pub walk_speed: Vec2,
+    pub dash_speed: Vec2,
 }
 
 impl Default for Dasher {
     fn default() -> Self {
         Self {
             velocity: Vec2::ZERO,
+            walk_speed: Vec2::new(100.0, 0.0),
+            dash_speed: Vec2::new(300.0, 0.0),
         }
     }
 }
@@ -53,8 +59,6 @@ impl Dasher {
 
     #[state]
     fn fall(&mut self, event: &Event) -> Response<State> {
-        self.velocity.y = -10.0;
-
         match event {
             Event::Grounded => Transition(State::idle()),
             _ => Super,
@@ -74,21 +78,21 @@ impl Dasher {
 
     #[state(superstate= "grounded")]
     fn walk(&mut self, event: &Event) -> Response<State> {
-        self.velocity = Vec2::new(10.0, self.velocity.y);
+        self.velocity.x = self.walk_speed.x;
 
         match event {
             // Event::WalkPressed => Handled,
-            Event::DashPressed => Transition(State::dash()),
+            Event::WalkReleased => Transition(State::idle()),
             _ => Super,
         }
     }
     
     #[state(superstate= "grounded")]
     fn dash(&mut self, event: &Event) -> Response<State> {
-        self.velocity = Vec2::new(100.0, 0.0);
+        self.velocity.x = self.dash_speed.x;
 
         match event {
-            // Event::DashPressed => Handled,
+            Event::DashReleased => Transition(State::idle()),
             _ => Super,
         }
     }
