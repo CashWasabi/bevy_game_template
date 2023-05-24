@@ -33,21 +33,6 @@ impl Plugin for LevelPlugin {
                     systems::restart_level,
                 ).in_set(OnUpdate(GameState::Playing))
             )
-            // .add_system(
-            //     systems::pause_physics_during_load.in_set(OnUpdate(GameState::Playing))
-            // )
-            // .add_system(
-            //     systems::spawn_wall_collision.in_set(OnUpdate(GameState::Playing))
-            // )
-            // .add_system(
-            //     systems::camera_fit_inside_current_level.in_set(OnUpdate(GameState::Playing))
-            // )
-            // .add_system(
-            //     systems::update_level_selection.in_set(OnUpdate(GameState::Playing))
-            // )
-            // .add_system(
-            //     systems::restart_level.in_set(OnUpdate(GameState::Playing))
-            // )
             .register_ldtk_int_cell::<WallBundle>(1)
             .register_ldtk_int_cell::<WallBundle>(3)
             .register_ldtk_entity::<PlayerBundle>("Player");

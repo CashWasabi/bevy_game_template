@@ -3,11 +3,11 @@ use crate::players::components::PlayerDirection;
 
 use benimator::*;
 use bevy::prelude::*;
-use leafwing_input_manager::prelude::*;
+// use leafwing_input_manager::prelude::*;
 
 // Create the animation component
 // Note: you may make the animation an asset instead of a component
-#[derive(Component, Deref, Clone)]
+#[derive(Clone, Component, Deref)]
 pub struct Animation(pub benimator::Animation);
 impl Default for Animation {
     fn default() -> Self {
@@ -26,7 +26,6 @@ impl Default for AnimationState {
         AnimationState(benimator::State::default())
     }
 }
-
 // TODO(MO): Can we do this somehow else?
 impl Clone for AnimationState {
     fn clone(&self) -> Self {
@@ -100,8 +99,9 @@ pub fn flip_sprites(
     for (
         // _action_state,
         mut direction,
-        mut sprite
-    ) in query.iter_mut() {
+        mut sprite,
+    ) in query.iter_mut()
+    {
         // TODO(MO): fix stuff
         // let dir = action_state.direction().unwrap_or(Vec2::ZERO);
         let dir = Vec2::ZERO;
