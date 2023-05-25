@@ -1,4 +1,5 @@
-pub mod animation;
+pub mod systems;
+pub mod components;
 
 use bevy::prelude::*;
 
@@ -11,9 +12,9 @@ impl Plugin for InternalAnimationPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             (
-                animation::animate,
-                animation::flip_sprites,
-                // animation::update_player_animation,
+                systems::animate,
+                // systems::flip_sprites,
+                // systems::update_player_animation,
             ).in_set(OnUpdate(GameState::Playing))
         )
         ;

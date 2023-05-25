@@ -3542,6 +3542,7 @@ checksum = "0f50d3d71457f5448d73823e1dfa46e3dfc9c5557d76e8d51166c4b2c6ec46bb"
 dependencies = [
  "bevy",
  "either",
+ "leafwing-input-manager",
  "seldom_fn_plugin",
 ]
 

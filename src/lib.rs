@@ -1,4 +1,3 @@
-// pub mod actions;
 pub mod animations;
 pub mod audio;
 pub mod levels;
@@ -6,15 +5,18 @@ pub mod loading;
 pub mod menu;
 pub mod physics;
 pub mod players;
+pub mod actions;
+pub mod events;
 
-// use crate::actions::ActionsPlugin;
 use crate::animations::InternalAnimationPlugin;
 use crate::audio::InternalAudioPlugin;
+use crate::events::InternalEventPlugin;
 use crate::levels::LevelPlugin;
 use crate::loading::LoadingPlugin;
 use crate::menu::MenuPlugin;
 use crate::physics::PhysicsPlugin;
 use crate::players::PlayerPlugin;
+use crate::actions::ActionsPlugin;
 
 use bevy::app::App;
 use bevy::prelude::*;
@@ -40,12 +42,13 @@ impl Plugin for GamePlugin {
         app.add_state::<GameState>()
             .add_plugin(LoadingPlugin)
             .add_plugin(MenuPlugin)
-            // .add_plugin(ActionsPlugin)
+            .add_plugin(InternalEventPlugin)
             .add_plugin(InternalAudioPlugin)
+            .add_plugin(InternalAnimationPlugin)
             .add_plugin(PhysicsPlugin)
             .add_plugin(LevelPlugin)
-            .add_plugin(InternalAnimationPlugin)
             .add_plugin(PlayerPlugin)
+            .add_plugin(ActionsPlugin)
             ;
     }
 }

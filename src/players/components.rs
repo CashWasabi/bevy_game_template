@@ -1,24 +1,10 @@
-use crate::animations::animation::{
-    Animation,
-    AnimationState,
-    PlayerAnimations
-};
-use crate::physics::components::{
-    ColliderBundle,
-    GroundDetection,
-    WallDetection
-};
+use crate::actions::components::Action;
+use crate::animations::components::{Animation, AnimationState, PlayerAnimations};
+use crate::physics::components::{ColliderBundle, GroundDetection, WallDetection};
 use bevy::prelude::*;
+use leafwing_input_manager::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
-use leafwing_input_manager::{
-    prelude::*,
-    axislike::VirtualAxis
-};
-use seldom_state::prelude::*;
-
-const JUMP_VELOCITY: f32 = 500.;
-const PLAYER_SPEED: f32 = 200.;
-const GRAVITY: f32 = -1000.;
+use statig::prelude::*;
 
 #[derive(Copy, Clone, PartialEq, Default, Component)]
 pub struct Player;
@@ -26,123 +12,151 @@ pub struct Player;
 #[derive(Component, Default, Clone, PartialEq, PartialOrd, Deref, DerefMut)]
 pub struct PlayerDirection(pub f32);
 
-// #[derive(Component, Deref, DerefMut)]
-// pub struct DashTimer(pub Timer);
-//
-// #[derive(Component, Deref, DerefMut)]
-// pub struct JumpBufferTimer(pub Timer);
-//
-// #[derive(Component, Deref, DerefMut)]
-// pub struct CoyoteTimer(pub Timer);
-
-#[derive(Actionlike, Clone, Reflect)]
-pub enum Action {
+#[derive(Debug, Clone, Reflect, Component)]
+pub enum Event {
     Move,
+    Run,
     Jump,
     Dash,
+    Crouch,
+    Grounded,
+    Fall,
+    Attack,
 }
 
-#[derive(Clone, Copy, Component, Reflect)]
-#[component(storage = "SparseSet")]
-pub enum Grounded {
-    Left = -1,
-    Idle = 0,
-    Right = 1,
-}
+#[derive(Component)]
+pub struct PlayerStateMachine(pub StateMachine<CharacterController>);
 
-#[derive(Reflect)]
-pub struct GroundedTrigger;
+#[derive(Default)]
+pub struct CharacterController;
 
-impl BoolTrigger for GroundedTrigger {
-    type Param<'w, 's> = Query<'w, 's, (&'static Transform, &'static Falling)>;
+#[state_machine(initial = "State::idle()")]
+impl CharacterController {
+    #[state(superstate = "grounded")]
+    fn idle(event: &Event) -> Response<State> {
+        match event {
+            _ => Super
+        }
+    }
 
-    fn trigger(&self, entity: Entity, fallings: Self::Param<'_, '_>) -> bool {
-        let (transform, falling) = fallings.get(entity).unwrap();
-        transform.translation.y <= 0. && falling.velocity <= 0.
+    #[state(superstate = "grounded")]
+    fn walk(event: &Event) -> Response<State> {
+        match event {
+            _ => Super
+        }
+    }
+
+    #[state(superstate = "grounded")]
+    fn run(event: &Event) -> Response<State> {
+        match event {
+            _ => Super
+        }
+    }
+
+    #[state(superstate = "grounded")]
+    fn crouch(event: &Event) -> Response<State> {
+        match event {
+            _ => Super
+        }
+    }
+
+    #[state(superstate = "grounded")]
+    fn dash(event: &Event) -> Response<State> {
+        match event {
+            _ => Super
+        }
+    }
+
+    #[state(superstate = "grounded")]
+    fn jump(event: &Event) -> Response<State> {
+        match event {
+            _ => Super
+        }
+    }
+
+    #[state(superstate = "grounded")]
+    fn ground_attack(event: &Event) -> Response<State> {
+        match event {
+            _ => Super
+        }
+    }
+
+    #[superstate]
+    fn grounded(event: &Event) -> Response<State> {
+        match event {
+            Event::Move => Transition(State::walk()),
+            Event::Run => Transition(State::run()),
+            Event::Crouch => Transition(State::crouch()),
+            Event::Dash => Transition(State::dash()),
+            Event::Jump => Transition(State::jump()),
+            Event::Fall => Transition(State::fall()),
+            Event::Attack => Transition(State::ground_attack()),
+            _ => Super
+        }
+    }
+
+    #[state(superstate = "airborne")]
+    fn fall(event: &Event) -> Response<State> {
+        match event {
+            _ => Super
+        }
+    }
+
+    #[state(superstate = "airborne")]
+    fn air_attack(event: &Event) -> Response<State> {
+        match event {
+            _ => Super
+        }
+    }
+
+    #[superstate]
+    fn airborne(event: &Event) -> Response<State> {
+        match event {
+            Event::Grounded => Transition(State::idle()),
+            Event::Attack => Transition(State::air_attack()),
+            _ => Super
+        }
     }
 }
 
-#[derive(Clone, Component, Reflect)]
-#[component(storage = "SparseSet")]
-pub struct Falling {
-    velocity: f32,
-}
-
-fn walk(mut groundeds: Query<(&mut Transform, &Grounded)>, time: Res<Time>) {
-    for (mut transform, grounded) in &mut groundeds {
-        transform.translation.x += *grounded as i32 as f32 * time.delta_seconds() * PLAYER_SPEED;
-    }
-}
-
-fn fall(mut fallings: Query<(&mut Transform, &mut Falling)>, time: Res<Time>) {
-    for (mut transform, mut falling) in &mut fallings {
-        let dt = time.delta_seconds();
-        falling.velocity += dt * GRAVITY;
-        transform.translation.y += dt * falling.velocity;
-    }
-}
-
-#[derive(Clone, Bundle)]
+#[derive(Bundle)]
 pub struct PlayerStateBundle {
-    pub input: InputManagerBundle<Action>,
-    pub state_machine: StateMachine,
     pub player: Player,
+    pub character_controller: PlayerStateMachine,
+    pub action_state: ActionState<Action>,
     pub player_animations: PlayerAnimations,
     pub animation: Animation,
     pub animation_state: AnimationState,
     pub direction: PlayerDirection,
 }
 
+
 impl Default for PlayerStateBundle {
     fn default() -> Self {
-        let input = InputManagerBundle {
-            input_map: InputMap::default()
-                .insert(VirtualAxis::horizontal_arrow_keys(), Action::Move)
-                .insert(
-                    SingleAxis::symmetric(GamepadAxisType::LeftStickX, 0.),
-                    Action::Move,
-                )
-                .insert(KeyCode::Space, Action::Jump)
-                .insert(GamepadButtonType::South, Action::Jump)
-                .build(),
-            ..default()
-        };
+        let player = Player::default();
+        let character_controller = PlayerStateMachine(
+            CharacterController::default().state_machine()
+        );
+        let action_state = ActionState::<Action>::default();
+        let player_animations = PlayerAnimations::default();
+        let animation = Animation::default();
+        let animation_state = AnimationState::default();
+        let direction = PlayerDirection::default();
 
-        let state_machine = StateMachine::default()
-            // Whenever the player presses jump, jump
-            .trans::<Grounded>(
-                JustPressedTrigger(Action::Jump),
-                Falling {
-                    velocity: JUMP_VELOCITY,
-                },
-            )
-            // When the player hits the ground, idle
-            .trans::<Falling>(GroundedTrigger, Grounded::Idle)
-            // When the player is grounded, set their movement direction
-            .trans_builder(
-                ValueTrigger::unbounded(Action::Move),
-                |_: &Grounded, value| {
-                    Some(match value {
-                        value if value > 0.5 => Grounded::Right,
-                        value if value < -0.5 => Grounded::Left,
-                        _ => Grounded::Idle,
-                    })
-                },
-            );
-
-        Self {
-            input,
-            state_machine,
-            ..Default::default()
+        PlayerStateBundle {
+            player,
+            character_controller,
+            action_state,
+            player_animations,
+            animation,
+            animation_state,
+            direction,
         }
     }
 }
 
-#[derive(Clone, Default, Bundle, LdtkEntity)]
+#[derive(Default, Bundle, LdtkEntity)]
 pub struct PlayerBundle {
-    #[bundle]
-    pub player_state_bundle: PlayerStateBundle,
-
     #[sprite_sheet_bundle(
         "characters/Adventurer-1.5/adventurer-v1.5-Sheet.png",
         50.0, // tile height
@@ -162,6 +176,10 @@ pub struct PlayerBundle {
 
     #[worldly]
     pub worldly: Worldly,
+
+    #[bundle]
+    pub player_state_bundle: PlayerStateBundle,
+
     pub ground_detection: GroundDetection,
     pub wall_detection: WallDetection,
 
