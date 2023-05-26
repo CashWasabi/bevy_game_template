@@ -1,6 +1,6 @@
 pub mod animations;
 pub mod audio;
-pub mod levels;
+pub mod ldtk;
 pub mod loading;
 pub mod menu;
 pub mod physics;
@@ -11,7 +11,7 @@ pub mod events;
 use crate::animations::InternalAnimationPlugin;
 use crate::audio::InternalAudioPlugin;
 use crate::events::InternalEventPlugin;
-use crate::levels::LevelPlugin;
+use crate::ldtk::LdtkImportPlugin;
 use crate::loading::LoadingPlugin;
 use crate::menu::MenuPlugin;
 use crate::physics::PhysicsPlugin;
@@ -46,7 +46,7 @@ impl Plugin for GamePlugin {
             .add_plugin(InternalAudioPlugin)
             .add_plugin(InternalAnimationPlugin)
             .add_plugin(PhysicsPlugin)
-            .add_plugin(LevelPlugin)
+            .add_plugin(LdtkImportPlugin)
             .add_plugin(PlayerPlugin)
             .add_plugin(ActionsPlugin)
             ;

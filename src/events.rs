@@ -1,5 +1,9 @@
 use bevy::prelude::*;
 use crate::actions::components::Action;
+use crate::players::state_machine::{
+    State as CharacterState,
+    Superstate as CharacterSuperstate
+};
 use crate::animations::components::{
     Animation,
     AnimationState,
@@ -7,20 +11,22 @@ use crate::animations::components::{
 
 // action events
 pub struct ActionEvent{
-    entity: Entity,
-    action: Action,
+    pub entity: Entity,
+    pub action: Action,
 }
 
 // player events
 pub struct CharacterControllerEvent{
-    entity: Entity,
+    pub entity: Entity,
+    pub state: CharacterState,
+    pub superstate: CharacterSuperstate,
 }
 
 // animation events
 pub struct AnimationEvent{
-    entity: Entity,
-    animation: Animation,
-    animation_state: AnimationState,
+    pub entity: Entity,
+    pub animation: Animation,
+    pub animation_state: AnimationState,
 }
 
 pub struct InternalEventPlugin;

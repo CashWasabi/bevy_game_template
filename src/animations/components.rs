@@ -1,10 +1,11 @@
-use benimator::*;
+use benimator::FrameRate;
 use bevy::prelude::*;
 
 // Create the animation component
 // Note: you may make the animation an asset instead of a component
 #[derive(Clone, Component, Deref)]
 pub struct Animation(pub benimator::Animation);
+
 impl Default for Animation {
     fn default() -> Self {
         Animation(benimator::Animation::from_indices(
@@ -71,3 +72,4 @@ impl Default for PlayerAnimations {
         }
     }
 }
+

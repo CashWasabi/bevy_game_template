@@ -4,13 +4,15 @@ pub mod systems;
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 
-use crate::levels::components::WallBundle;
+use crate::ldtk::components::WallBundle;
 use crate::players::components::PlayerBundle;
 use crate::GameState;
-pub struct LevelPlugin;
 
-// This plugin is responsible to control the game levels
-impl Plugin for LevelPlugin {
+
+pub struct LdtkImportPlugin;
+
+// This plugin is our ldtk importer
+impl Plugin for LdtkImportPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugin(LdtkPlugin)
             .insert_resource(LevelSelection::Uid(0))

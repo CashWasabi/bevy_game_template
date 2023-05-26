@@ -1,3 +1,4 @@
+use crate::players::state_machine::CharacterController;
 use crate::actions::components::Action;
 use crate::animations::components::{Animation, AnimationState, PlayerAnimations};
 use crate::physics::components::{ColliderBundle, GroundDetection, WallDetection};
@@ -12,112 +13,9 @@ pub struct Player;
 #[derive(Component, Default, Clone, PartialEq, PartialOrd, Deref, DerefMut)]
 pub struct PlayerDirection(pub f32);
 
-#[derive(Debug, Clone, Reflect, Component)]
-pub enum Event {
-    Move,
-    Run,
-    Jump,
-    Dash,
-    Crouch,
-    Grounded,
-    Fall,
-    Attack,
-}
 
 #[derive(Component)]
 pub struct PlayerStateMachine(pub StateMachine<CharacterController>);
-
-#[derive(Default)]
-pub struct CharacterController;
-
-#[state_machine(initial = "State::idle()")]
-impl CharacterController {
-    #[state(superstate = "grounded")]
-    fn idle(event: &Event) -> Response<State> {
-        match event {
-            _ => Super
-        }
-    }
-
-    #[state(superstate = "grounded")]
-    fn walk(event: &Event) -> Response<State> {
-        match event {
-            _ => Super
-        }
-    }
-
-    #[state(superstate = "grounded")]
-    fn run(event: &Event) -> Response<State> {
-        match event {
-            _ => Super
-        }
-    }
-
-    #[state(superstate = "grounded")]
-    fn crouch(event: &Event) -> Response<State> {
-        match event {
-            _ => Super
-        }
-    }
-
-    #[state(superstate = "grounded")]
-    fn dash(event: &Event) -> Response<State> {
-        match event {
-            _ => Super
-        }
-    }
-
-    #[state(superstate = "grounded")]
-    fn jump(event: &Event) -> Response<State> {
-        match event {
-            _ => Super
-        }
-    }
-
-    #[state(superstate = "grounded")]
-    fn ground_attack(event: &Event) -> Response<State> {
-        match event {
-            _ => Super
-        }
-    }
-
-    #[superstate]
-    fn grounded(event: &Event) -> Response<State> {
-        match event {
-            Event::Move => Transition(State::walk()),
-            Event::Run => Transition(State::run()),
-            Event::Crouch => Transition(State::crouch()),
-            Event::Dash => Transition(State::dash()),
-            Event::Jump => Transition(State::jump()),
-            Event::Fall => Transition(State::fall()),
-            Event::Attack => Transition(State::ground_attack()),
-            _ => Super
-        }
-    }
-
-    #[state(superstate = "airborne")]
-    fn fall(event: &Event) -> Response<State> {
-        match event {
-            _ => Super
-        }
-    }
-
-    #[state(superstate = "airborne")]
-    fn air_attack(event: &Event) -> Response<State> {
-        match event {
-            _ => Super
-        }
-    }
-
-    #[superstate]
-    fn airborne(event: &Event) -> Response<State> {
-        match event {
-            Event::Grounded => Transition(State::idle()),
-            Event::Attack => Transition(State::air_attack()),
-            _ => Super
-        }
-    }
-}
 
 #[derive(Bundle)]
 pub struct PlayerStateBundle {

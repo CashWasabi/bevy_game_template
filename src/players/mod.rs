@@ -1,3 +1,4 @@
+pub mod state_machine;
 pub mod components;
 pub mod systems;
 
@@ -17,7 +18,9 @@ impl Plugin for PlayerPlugin {
             .add_plugin(StateMachinePlugin)
             .add_systems(
                 (
-                    systems::update_player,
+                    systems::update_player_animation,
+                    systems::update_player_state,
+                    systems::update_player_movement,
                 ).in_set(OnUpdate(GameState::Playing))
             )
         ;

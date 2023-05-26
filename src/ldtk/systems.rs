@@ -1,4 +1,4 @@
-use crate::levels::components::*;
+use crate::ldtk::components::*;
 use crate::loading::LevelAssets;
 use crate::players::components::*;
 
