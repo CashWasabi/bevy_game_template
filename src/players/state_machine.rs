@@ -2,24 +2,6 @@ use statig::prelude::*;
 use bevy::math::Vec2;
 use bevy::prelude::{Reflect, Component};
 
-#[derive(Debug)]
-pub enum State {
-    Idle,
-    Walk,
-    Run,
-    Crouch,
-    Jump,
-    Dash,
-    GroundedAttack,
-    AirborneAttack,
-    Fall,
-}
-
-#[derive(Debug)]
-pub enum Superstate {
-    Grounded,
-    Airborne,
-}
 
 #[derive(Debug, Clone, Reflect, Component)]
 pub enum Event {
@@ -34,71 +16,27 @@ pub enum Event {
     Airborne,
 }
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct CharacterController {
+    pub ground_detected: bool,
+    pub wall_detected: bool,
     pub speed: Vec2,
 }
 
-impl IntoStateMachine for CharacterController {
-    type State = State;
-
-    type Superstate<'sub> = Superstate;
-
-    type Event<'evt> = Event;
-
-    type Context<'ctx> = ();
-
-    const INITIAL: State = State::Idle;
-
-    const ON_TRANSITION: fn(&mut Self, &Self::State, &Self::State) = |_shared, source, target| {
-        println!("Transitioning from {:?} to {:?}", source, target);
-    };}
-
-impl blocking::State<CharacterController> for State {
-    fn call_handler(
-        &mut self,
-        character_controller: &mut CharacterController,
-        event: &Event,
-        _: &mut ()
-    ) -> Response<Self> {
-        match self {
-            State::Idle => character_controller.idle(event),
-            State::Walk => character_controller.walk(event),
-            State::Run => character_controller.run(event),
-            State::Crouch => character_controller.crouch(event),
-            State::Jump => character_controller.jump(event),
-            State::Dash => character_controller.dash(event),
-            State::GroundedAttack => character_controller.grounded_attack(event),
-            State::AirborneAttack => character_controller.airborne_attack(event),
-            State::Fall => character_controller.fall(event),
-        }
-    }
-
-    fn superstate(&mut self) -> Option<Superstate> {
-        match self {
-            State::Idle => Some(Superstate::Grounded),
-            State::Walk => Some(Superstate::Grounded),
-            State::Run => Some(Superstate::Grounded),
-            State::Crouch => Some(Superstate::Grounded),
-            State::Jump => Some(Superstate::Grounded),
-            State::Dash => Some(Superstate::Grounded),
-            State::GroundedAttack => Some(Superstate::Grounded),
-            State::AirborneAttack => Some(Superstate::Airborne),
-            State::Fall => Some(Superstate::Airborne),
-        }
-    }
-}
-
-impl blocking::Superstate<CharacterController> for Superstate {
-    fn call_handler(&mut self, character_controller: &mut CharacterController, event: &Event, _: &mut ()) -> Response<State> {
-        match self {
-            Superstate::Grounded => character_controller.grounded(event),
-            Superstate::Airborne => character_controller.airborne(event),
-        }
-    }
-}
-
+#[state_machine(
+    // This sets the initial state to `led_on`.
+    initial = "State::idle()",
+    // Derive the Debug trait on the `State` enum.
+    state(derive(Debug)),
+    // Derive the Debug trait on the `Superstate` enum.
+    superstate(derive(Debug)),
+    // Set the `on_transition` callback.
+    on_transition = "Self::on_transition",
+    // Set the `on_dispatch` callback.
+    on_dispatch = "Self::on_dispatch"
+)]
 impl CharacterController {
+    #[state(superstate="grounded")]
     fn idle(&mut self, event: &Event) -> Response<State> {
         self.speed = Vec2::ZERO;
         match event {
@@ -106,6 +44,7 @@ impl CharacterController {
         }
     }
 
+    #[state(superstate="grounded")]
     fn walk(&mut self, event: &Event) -> Response<State> {
         self.speed = Vec2::new(100.0, 0.0);
         match event {
@@ -113,6 +52,7 @@ impl CharacterController {
         }
     }
 
+    #[state(superstate="grounded")]
     fn run(&mut self, event: &Event) -> Response<State> {
         self.speed = Vec2::new(200.0, 0.0);
         match event {
@@ -120,6 +60,7 @@ impl CharacterController {
         }
     }
 
+    #[state(superstate="grounded")]
     fn crouch(&mut self, event: &Event) -> Response<State> {
         self.speed = Vec2::new(50.0, 0.0);
         match event {
@@ -127,19 +68,27 @@ impl CharacterController {
         }
     }
 
+    #[state(superstate="grounded")]
     fn dash(&mut self, event: &Event) -> Response<State> {
-        self.speed = Vec2::new(400.0, 0.0);
+        self.speed = Vec2::new(600.0, 0.0);
         match event {
             _ => Super
         }
     }
 
+    #[action]
+    fn enter_jump(&mut self) {
+        self.speed = Vec2::new(800.0, 100.0);
+    }
+
+    #[state(superstate="grounded", entry_action = "enter_jump")]
     fn jump(&mut self, event: &Event) -> Response<State> {
         match event {
             _ => Super
         }
     }
 
+    #[state(superstate="grounded")]
     fn grounded_attack(&mut self, event: &Event) -> Response<State> {
         self.speed = Vec2::ZERO;
         match event {
@@ -147,26 +96,30 @@ impl CharacterController {
         }
     }
 
+    #[superstate]
     fn grounded(&mut self, event: &Event) -> Response<State> {
+        self.ground_detected = true;
         match event {
-            Event::Move => Transition(State::Walk),
-            Event::Run => Transition(State::Run),
-            Event::Crouch => Transition(State::Crouch),
-            Event::Dash => Transition(State::Dash),
-            Event::Jump => Transition(State::Jump),
-            Event::Fall => Transition(State::Fall),
-            Event::Attack => Transition(State::GroundedAttack),
-            Event::Grounded => Transition(State::Idle),
+            Event::Move => Transition(State::walk()),
+            Event::Run => Transition(State::run()),
+            Event::Crouch => Transition(State::crouch()),
+            Event::Dash => Transition(State::dash()),
+            Event::Jump => Transition(State::jump()),
+            Event::Fall => Transition(State::fall()),
+            Event::Attack => Transition(State::grounded_attack()),
+            Event::Grounded => Transition(State::idle()),
             _ => Super
         }
     }
 
+    #[state(superstate="airborne")]
     fn fall(&mut self, event: &Event) -> Response<State> {
         match event {
             _ => Super
         }
     }
 
+    #[state(superstate="airborne")]
     fn airborne_attack(&mut self, event: &Event) -> Response<State> {
         self.speed = Vec2::ZERO;
         match event {
@@ -174,12 +127,24 @@ impl CharacterController {
         }
     }
 
+    #[superstate]
     fn airborne(&mut self, event: &Event) -> Response<State> {
+        self.ground_detected = false;
         match event {
-            Event::Grounded => Transition(State::Idle),
-            Event::Attack => Transition(State::AirborneAttack),
-            Event::Airborne => Transition(State::Fall),
+            Event::Grounded => Transition(State::idle()),
+            Event::Attack => Transition(State::airborne_attack()),
+            Event::Airborne => Transition(State::fall()),
             _ => Super
         }
+    }
+}
+
+impl CharacterController {
+    fn on_transition(&mut self, source: &State, target: &State) {
+        println!("transitioned from `{source:?}` to `{target:?}`");
+    }
+
+    fn on_dispatch(&mut self, state: StateOrSuperstate<Self>, event: &Event) {
+        println!("dispatching `{event:?}` to `{state:?}`");
     }
 }

@@ -1,9 +1,6 @@
 use bevy::prelude::*;
 use crate::actions::components::Action;
-use crate::players::state_machine::{
-    State as CharacterState,
-    Superstate as CharacterSuperstate
-};
+// use crate::players::state_machine::CharacterController;
 use crate::animations::components::{
     Animation,
     AnimationState,
@@ -16,11 +13,11 @@ pub struct ActionEvent{
 }
 
 // player events
-pub struct CharacterControllerEvent{
-    pub entity: Entity,
-    pub state: CharacterState,
-    pub superstate: CharacterSuperstate,
-}
+// pub struct CharacterControllerEvent{
+//     pub entity: Entity,
+//     pub state: CharacterController::State,
+//     pub superstate: CharacterController::Superstate,
+// }
 
 // animation events
 pub struct AnimationEvent{
@@ -35,7 +32,7 @@ impl Plugin for InternalEventPlugin {
     fn build(&self, app: &mut App) {
         app
             .add_event::<ActionEvent>()
-            .add_event::<CharacterControllerEvent>()
+            // .add_event::<CharacterControllerEvent>()
             .add_event::<AnimationEvent>()
         ;
     }

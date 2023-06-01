@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
+use statig::prelude::IntoStateMachine;
 use leafwing_input_manager::prelude::ActionState;
 
 use crate::players::components::*;
@@ -9,12 +10,10 @@ use crate::physics::components::{
     GroundDetection,
     WallDetection
 };
-use crate::players::state_machine::State as CharacterState;
+use crate::players::state_machine::CharacterController;
 use crate::players::state_machine::Event as CharacterEvent;
 
 
-// TODO(MO): Should we directly link action_state to animations?
-// Maybe only link by events
 pub fn flip_sprites(
     mut query: Query<(
         &ActionState<Action>,
@@ -53,15 +52,17 @@ pub fn update_player_animation(
         mut animation,
         player_animations
     ) in &mut query {
+        type CharacterState = <CharacterController as IntoStateMachine>::State;
+
         let new_animation = match player_state_machine.0.state() {
-            CharacterState::Walk => player_animations.run.clone(),
-            CharacterState::Run => player_animations.run.clone(),
-            CharacterState::Dash => player_animations.dash.clone(),
-            CharacterState::Jump => player_animations.jump.clone(),
-            CharacterState::Idle => player_animations.idle.clone(),
-            CharacterState::Crouch => player_animations.crouch.clone(),
-            CharacterState::GroundedAttack => player_animations.grounded_attack.clone(),
-            CharacterState::AirborneAttack => player_animations.airborne_attack.clone(),
+            CharacterState::Walk{ .. } => player_animations.run.clone(),
+            CharacterState::Run{ .. } => player_animations.run.clone(),
+            CharacterState::Dash{ .. } => player_animations.dash.clone(),
+            CharacterState::Jump{ .. } => player_animations.jump.clone(),
+            CharacterState::Idle{ .. } => player_animations.idle.clone(),
+            CharacterState::Crouch{ .. } => player_animations.crouch.clone(),
+            CharacterState::GroundedAttack{ .. } => player_animations.grounded_attack.clone(),
+            CharacterState::AirborneAttack{ .. } => player_animations.airborne_attack.clone(),
             _ => player_animations.fall.clone(),
         };
 
