@@ -24,15 +24,10 @@ pub struct CharacterController {
 }
 
 #[state_machine(
-    // This sets the initial state to `led_on`.
     initial = "State::idle()",
-    // Derive the Debug trait on the `State` enum.
     state(derive(Debug)),
-    // Derive the Debug trait on the `Superstate` enum.
     superstate(derive(Debug)),
-    // Set the `on_transition` callback.
     on_transition = "Self::on_transition",
-    // Set the `on_dispatch` callback.
     on_dispatch = "Self::on_dispatch"
 )]
 impl CharacterController {
@@ -62,7 +57,7 @@ impl CharacterController {
 
     #[state(superstate="grounded")]
     fn crouch(&mut self, event: &Event) -> Response<State> {
-        self.speed = Vec2::new(50.0, 0.0);
+        self.speed = Vec2::new(0.0, 0.0);
         match event {
             _ => Super
         }
@@ -76,13 +71,9 @@ impl CharacterController {
         }
     }
 
-    #[action]
-    fn enter_jump(&mut self) {
-        self.speed = Vec2::new(800.0, 100.0);
-    }
-
-    #[state(superstate="grounded", entry_action = "enter_jump")]
+    #[state(superstate="grounded")]
     fn jump(&mut self, event: &Event) -> Response<State> {
+        self.speed = Vec2::new(2000.0, 100.0);
         match event {
             _ => Super
         }

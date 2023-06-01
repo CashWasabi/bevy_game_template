@@ -91,60 +91,44 @@ pub fn update_player_state(
         mut player_state_machine,
     ) in &mut query {
         if action_state.pressed(Action::Run)  {
-            println!("RUN PRESSED!");
             player_state_machine.0.handle(&CharacterEvent::Run);
             return;
         }
 
         if action_state.pressed(Action::Crouch)  {
-            println!("CROUCH PRESSED!");
             player_state_machine.0.handle(&CharacterEvent::Crouch);
             return;
         }
 
-        if action_state.pressed(Action::Jump)  {
-            println!("JUMP PRESSED!");
+        if action_state.just_pressed(Action::Jump)  {
             player_state_machine.0.handle(&CharacterEvent::Jump);
             return;
         }
 
-        if action_state.pressed(Action::Dash)  {
-            println!("JUMP PRESSED!");
+        if action_state.just_pressed(Action::Dash)  {
             player_state_machine.0.handle(&CharacterEvent::Dash);
             return;
         }
 
-        if action_state.pressed(Action::Attack)  {
-            println!("JUMP PRESSED!");
-            player_state_machine.0.handle(&CharacterEvent::Attack);
-            return;
-        }
-
-        if action_state.pressed(Action::Attack)  {
-            println!("ATTACK PRESSED!");
+        if action_state.just_pressed(Action::Attack)  {
             if ground_detection.0 {
-                println!("GROUND ATTACK!");
                 player_state_machine.0.handle(&CharacterEvent::Attack);
 
             } else {
-                println!("AIRBORNE ATTACK!");
                 player_state_machine.0.handle(&CharacterEvent::Attack);
             }
             return;
         }
 
         if action_state.pressed(Action::Move)  {
-            println!("MOVE PRESSED!");
             player_state_machine.0.handle(&CharacterEvent::Move);
             return;
         }
 
         if ground_detection.0 {
-            println!("IDLING!");
             player_state_machine.0.handle(&CharacterEvent::Grounded);
 
         } else {
-            println!("FALLING!");
             player_state_machine.0.handle(&CharacterEvent::Fall);
         }
 
@@ -158,6 +142,8 @@ pub fn update_player_movement(
         &ActionState<Action>,
         &mut ExternalForce,
         &mut Velocity,
+        &GroundDetection,
+        &WallDetection,
         &mut GravityScale,
         &PlayerDirection,
         &PlayerStateMachine,
@@ -170,6 +156,8 @@ pub fn update_player_movement(
         mut _external_force,
         mut velocity,
         mut _gravity_scale,
+        _ground_detection,
+        _wall_detection,
         player_direction,
         player_state_machine,
     ) in &mut query {
@@ -177,10 +165,13 @@ pub fn update_player_movement(
             Some(axis_data) => axis_data.xy(),
             None => Vec2::ZERO,
         };
-        println!("{}", axis_data);
-        // TODO(MO): axis_data is only relevant when pressed
-        // For dash and jump and others we want to do something else
-        // velocity.linvel.x = axis_data.x * player_state_machine.0.speed.x;
-        velocity.linvel.x = player_direction.0 * player_state_machine.0.speed.x;
+        let y_force = player_state_machine.0.speed.y;
+
+        if y_force != 0.0 {
+            velocity.linvel.y = player_state_machine.0.speed.y;
+            velocity.linvel.x = axis_data.x * player_state_machine.0.speed.x;
+        } else {
+            velocity.linvel.x = player_direction.0 * player_state_machine.0.speed.x;
+        }
     }
 }
