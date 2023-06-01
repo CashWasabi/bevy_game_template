@@ -1,5 +1,5 @@
 use crate::players::state_machine::CharacterController;
-use crate::actions::components::Action;
+use crate::actions::components::{Action, default_input_map};
 use crate::animations::components::{Animation, AnimationState, PlayerAnimations};
 use crate::physics::components::{ColliderBundle, GroundDetection, WallDetection};
 use bevy::prelude::*;
@@ -19,9 +19,9 @@ pub struct PlayerStateMachine(pub StateMachine<CharacterController>);
 
 #[derive(Bundle)]
 pub struct PlayerStateBundle {
+    pub input_manager_bundle: InputManagerBundle<Action>,
     pub player: Player,
     pub character_controller: PlayerStateMachine,
-    pub action_state: ActionState<Action>,
     pub player_animations: PlayerAnimations,
     pub animation: Animation,
     pub animation_state: AnimationState,
@@ -31,20 +31,23 @@ pub struct PlayerStateBundle {
 
 impl Default for PlayerStateBundle {
     fn default() -> Self {
+        let input_manager_bundle = InputManagerBundle::<Action> {
+            action_state: ActionState::<Action>::default(),
+            input_map: default_input_map(),
+        };
         let player = Player::default();
-        let character_controller = PlayerStateMachine(
-            CharacterController::default().state_machine()
-        );
-        let action_state = ActionState::<Action>::default();
+        let mut state_machine = CharacterController::default().state_machine();
+        state_machine.init();
+        let character_controller = PlayerStateMachine(state_machine);
         let player_animations = PlayerAnimations::default();
         let animation = Animation::default();
         let animation_state = AnimationState::default();
         let direction = PlayerDirection::default();
 
         PlayerStateBundle {
+            input_manager_bundle,
             player,
             character_controller,
-            action_state,
             player_animations,
             animation,
             animation_state,

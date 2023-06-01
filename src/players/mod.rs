@@ -18,6 +18,7 @@ impl Plugin for PlayerPlugin {
             .add_plugin(StateMachinePlugin)
             .add_systems(
                 (
+                    systems::flip_sprites,
                     systems::update_player_animation,
                     systems::update_player_state,
                     systems::update_player_movement,

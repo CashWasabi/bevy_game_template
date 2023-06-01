@@ -39,6 +39,8 @@ pub struct PlayerAnimations {
     pub dash: Animation,
     pub fall: Animation,
     pub crouch: Animation,
+    pub grounded_attack: Animation,
+    pub airborne_attack: Animation,
 }
 
 impl Default for PlayerAnimations {
@@ -67,6 +69,14 @@ impl Default for PlayerAnimations {
             )),
             crouch: Animation(benimator::Animation::from_indices(
                 4..=7,
+                FrameRate::from_fps(frame_rate),
+            )),
+            grounded_attack: Animation(benimator::Animation::from_indices(
+                42..=48,
+                FrameRate::from_fps(frame_rate),
+            )),
+            airborne_attack: Animation(benimator::Animation::from_indices(
+                96..=99,
                 FrameRate::from_fps(frame_rate),
             )),
         }

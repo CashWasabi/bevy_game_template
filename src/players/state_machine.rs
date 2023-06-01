@@ -2,6 +2,7 @@ use statig::prelude::*;
 use bevy::math::Vec2;
 use bevy::prelude::{Reflect, Component};
 
+#[derive(Debug)]
 pub enum State {
     Idle,
     Walk,
@@ -14,6 +15,7 @@ pub enum State {
     Fall,
 }
 
+#[derive(Debug)]
 pub enum Superstate {
     Grounded,
     Airborne,
@@ -26,9 +28,10 @@ pub enum Event {
     Jump,
     Dash,
     Crouch,
-    Grounded,
     Fall,
     Attack,
+    Grounded,
+    Airborne,
 }
 
 #[derive(Default)]
@@ -46,7 +49,10 @@ impl IntoStateMachine for CharacterController {
     type Context<'ctx> = ();
 
     const INITIAL: State = State::Idle;
-}
+
+    const ON_TRANSITION: fn(&mut Self, &Self::State, &Self::State) = |_shared, source, target| {
+        println!("Transitioning from {:?} to {:?}", source, target);
+    };}
 
 impl blocking::State<CharacterController> for State {
     fn call_handler(
@@ -97,31 +103,32 @@ impl CharacterController {
         self.speed = Vec2::ZERO;
         match event {
             _ => Super
-        } }
+        }
+    }
 
     fn walk(&mut self, event: &Event) -> Response<State> {
-        self.speed = Vec2::new(10.0, 0.0);
+        self.speed = Vec2::new(100.0, 0.0);
         match event {
             _ => Super
         }
     }
 
     fn run(&mut self, event: &Event) -> Response<State> {
-        self.speed = Vec2::new(20.0, 0.0);
+        self.speed = Vec2::new(200.0, 0.0);
         match event {
             _ => Super
         }
     }
 
     fn crouch(&mut self, event: &Event) -> Response<State> {
-        self.speed = Vec2::new(5.0, 0.0);
+        self.speed = Vec2::new(50.0, 0.0);
         match event {
             _ => Super
         }
     }
 
     fn dash(&mut self, event: &Event) -> Response<State> {
-        self.speed = Vec2::new(40.0, 0.0);
+        self.speed = Vec2::new(400.0, 0.0);
         match event {
             _ => Super
         }
@@ -149,6 +156,7 @@ impl CharacterController {
             Event::Jump => Transition(State::Jump),
             Event::Fall => Transition(State::Fall),
             Event::Attack => Transition(State::GroundedAttack),
+            Event::Grounded => Transition(State::Idle),
             _ => Super
         }
     }
@@ -170,6 +178,7 @@ impl CharacterController {
         match event {
             Event::Grounded => Transition(State::Idle),
             Event::Attack => Transition(State::AirborneAttack),
+            Event::Airborne => Transition(State::Fall),
             _ => Super
         }
     }
