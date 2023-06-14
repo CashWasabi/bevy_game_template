@@ -14,7 +14,7 @@ pub struct Player;
 pub struct PlayerDirection(pub f32);
 
 
-#[derive(Component)]
+#[derive(Component, Deref)]
 pub struct PlayerStateMachine(pub StateMachine<CharacterController>);
 
 #[derive(Bundle)]

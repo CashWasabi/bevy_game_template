@@ -6,6 +6,17 @@ use crate::animations::components::{
     AnimationState,
 };
 
+pub struct GameOverEvent;
+pub struct JumpStartedEvent;
+pub struct LandedEvent;
+pub struct CrouchStartedEvent;
+
+pub struct DashStartedEvent;
+pub struct DashEndedEvent;
+
+pub struct AttackEvent;
+pub struct HitEvent;
+
 // action events
 pub struct ActionEvent{
     pub entity: Entity,

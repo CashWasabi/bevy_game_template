@@ -1,26 +1,34 @@
-use crate::actions::components::Action;
-use crate::audio::components::FlyingAudio;
-use crate::loading::AudioAssets;
 use bevy::prelude::*;
 use bevy_kira_audio::prelude::*;
-use leafwing_input_manager::prelude::*;
+// use leafwing_input_manager::prelude::*;
+// use crate::actions::components::Action;
+use crate::loading::AudioAssets;
+use crate::audio::components::{
+    FlyingAudio,
+    // WalkingAudio,
+    // RunningAudio,
+    // JumpingAudio,
+    // DuckingAudio,
+    // CrouchingAudio,
+    // LandingAudio,
+    // AirAttackAudio,
+    // GroundAttackAudio,
+};
 
 pub fn start_audio(
     mut commands: Commands,
+    audio: Res<Audio>,
     audio_assets: Res<AudioAssets>,
-    audio: Res<Audio>
 ) {
     audio.pause();
-    let handle = audio
-        .play(audio_assets.flying.clone())
-        .looped()
-        .with_volume(0.3)
-        .handle();
-    commands.insert_resource(FlyingAudio(handle));
+    commands.insert_resource(
+        FlyingAudio::new(audio, audio_assets)
+    );
 }
 
+// TODO(MO): use events to start and stop sound!
 pub fn control_flying_sound(
-    actions: ActionState<Action>,
+    // actions: ActionState<Action>,
     audio: Res<FlyingAudio>,
     mut audio_instances: ResMut<Assets<AudioInstance>>,
 ) {

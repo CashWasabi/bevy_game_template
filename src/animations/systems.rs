@@ -6,15 +6,16 @@ use crate::animations::components::{
 use bevy::prelude::*;
 
 
+// TODO(MO): Use Events to start and stop animations!
 pub fn animate(
     time: Res<Time>,
     mut query: Query<(&mut AnimationState, &mut TextureAtlasSprite, &Animation)>,
 ) {
-    for (mut player, mut texture, animation) in &mut query {
+    for (mut animation_state, mut texture, animation) in &mut query {
         // Update the state
-        player.update(animation, time.delta());
+        animation_state.update(animation, time.delta());
 
         // Update the texture atlas
-        texture.index = player.frame_index();
+        texture.index = animation_state.frame_index();
     }
 }

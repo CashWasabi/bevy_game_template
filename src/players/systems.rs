@@ -74,7 +74,6 @@ pub fn update_player_animation(
 pub fn update_player_state(
     mut _commands: Commands,
     mut query: Query<(
-        Entity,
         &ActionState<Action>,
         &GroundDetection,
         &WallDetection,
@@ -83,7 +82,6 @@ pub fn update_player_state(
     )>,
 ) {
     for (
-        _entity,
         action_state,
         ground_detection,
         _wall_detection,
@@ -166,7 +164,6 @@ pub fn update_player_movement(
             None => Vec2::ZERO,
         };
         let y_force = player_state_machine.0.speed.y;
-
         if y_force != 0.0 {
             velocity.linvel.y = player_state_machine.0.speed.y;
             velocity.linvel.x = axis_data.x * player_state_machine.0.speed.x;

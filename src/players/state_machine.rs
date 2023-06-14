@@ -87,22 +87,6 @@ impl CharacterController {
         }
     }
 
-    #[superstate]
-    fn grounded(&mut self, event: &Event) -> Response<State> {
-        self.ground_detected = true;
-        match event {
-            Event::Move => Transition(State::walk()),
-            Event::Run => Transition(State::run()),
-            Event::Crouch => Transition(State::crouch()),
-            Event::Dash => Transition(State::dash()),
-            Event::Jump => Transition(State::jump()),
-            Event::Fall => Transition(State::fall()),
-            Event::Attack => Transition(State::grounded_attack()),
-            Event::Grounded => Transition(State::idle()),
-            _ => Super
-        }
-    }
-
     #[state(superstate="airborne")]
     fn fall(&mut self, event: &Event) -> Response<State> {
         match event {
@@ -119,11 +103,28 @@ impl CharacterController {
     }
 
     #[superstate]
+    fn grounded(&mut self, event: &Event) -> Response<State> {
+        self.ground_detected = true;
+        match event {
+            Event::Move => Transition(State::walk()),
+            Event::Run => Transition(State::run()),
+            Event::Crouch => Transition(State::crouch()),
+            Event::Dash => Transition(State::dash()),
+            Event::Jump => Transition(State::jump()),
+            Event::Fall => Transition(State::fall()),
+            Event::Attack => Transition(State::grounded_attack()),
+            Event::Grounded => Transition(State::idle()),
+            Event::Airborne => Transition(State::fall()),
+            // _ => Super
+        }
+    }
+
+    #[superstate]
     fn airborne(&mut self, event: &Event) -> Response<State> {
         self.ground_detected = false;
         match event {
-            Event::Grounded => Transition(State::idle()),
             Event::Attack => Transition(State::airborne_attack()),
+            Event::Grounded => Transition(State::idle()),
             Event::Airborne => Transition(State::fall()),
             _ => Super
         }

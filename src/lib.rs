@@ -1,3 +1,4 @@
+pub mod configs;
 pub mod animations;
 pub mod audio;
 pub mod ldtk;
@@ -7,6 +8,8 @@ pub mod physics;
 pub mod players;
 pub mod actions;
 pub mod events;
+pub mod movements;
+// pub mod particles;
 
 use crate::animations::InternalAnimationPlugin;
 use crate::audio::InternalAudioPlugin;
@@ -17,6 +20,8 @@ use crate::menu::MenuPlugin;
 use crate::physics::PhysicsPlugin;
 use crate::players::PlayerPlugin;
 use crate::actions::ActionsPlugin;
+use crate::movements::MovementPlugin;
+// use crate::particles::ParticlesPlugin;
 
 use bevy::app::App;
 use bevy::prelude::*;
@@ -47,6 +52,7 @@ impl Plugin for GamePlugin {
             .add_plugin(InternalAnimationPlugin)
             .add_plugin(PhysicsPlugin)
             .add_plugin(LdtkImportPlugin)
+            .add_plugin(MovementPlugin)
             .add_plugin(PlayerPlugin)
             .add_plugin(ActionsPlugin)
             ;

@@ -125,5 +125,3 @@ pub struct JumperBundle {
     #[from_entity_instance]
     entity_instance: EntityInstance,
 }
-
-

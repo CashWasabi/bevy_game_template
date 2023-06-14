@@ -1,14 +1,20 @@
 use bevy::prelude::*;
 use bevy_kira_audio::prelude::*;
+use crate::loading::AudioAssets;
 
 #[derive(Resource)]
 pub struct FlyingAudio(pub Handle<AudioInstance>);
 
-// TODO(MO): Find sounds for:
-// - walking
-// - running
-// - crouching
-// - jumping
-// - landing
-// - attacking
-// - dashing
+impl FlyingAudio {
+    pub fn new(
+        audio: Res<Audio>,
+        audio_assets: Res<AudioAssets>,
+    ) -> Self {
+        let handle = audio
+            .play(audio_assets.flying.clone())
+            .looped()
+            .with_volume(0.3)
+            .handle();
+        FlyingAudio (handle)
+    }
+}
