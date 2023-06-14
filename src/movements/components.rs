@@ -3,7 +3,7 @@ use bevy::prelude::*;
 
 #[derive(Component)]
 pub struct CoyoteTime {
-    duration: f32,
+    pub duration: f32,
 }
 
 #[derive(Component)]
