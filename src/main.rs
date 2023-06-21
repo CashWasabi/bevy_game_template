@@ -3,16 +3,16 @@
 
 use bevy::prelude::*;
 use bevy::DefaultPlugins;
-// ToDo: Replace bevy_game with your new crate name
+use bevy_editor_pls::prelude::*;
 use kaginawa::GamePlugin;
 
 fn main() {
     App::new()
         .insert_resource(Msaa::Off)
-        .insert_resource(ClearColor(Color::rgb(0.4, 0.4, 0.4)))
+        .insert_resource(ClearColor(Color::rgb(0.0, 0.0, 0.0)))
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
-                title: "Kaginawa".to_string(), // ToDo
+                title: "Kaginawa".to_string(),
                 resolution: (800., 600.).into(),
                 canvas: Some("#bevy".to_owned()),
                 ..default()
@@ -20,6 +20,7 @@ fn main() {
             ..default()
         }))
         .add_plugin(GamePlugin)
+        .add_plugin(EditorPlugin::default())
         .add_system(bevy::window::close_on_esc)
         .run();
 }

@@ -16,30 +16,28 @@ lto = true
 codegen-units = 1
 
 [features]
-dev = [
-    "bevy/bevy_dylib",
-]
+dev = ["bevy/bevy_dylib"]
 
 # Bevy defaults minus audio and some other not needed things
 default = [
-    "bevy/animation",
-    "bevy/bevy_asset",
-    "bevy/bevy_scene",
-    "bevy/bevy_winit",
-    "bevy/bevy_core_pipeline",
-    "bevy/bevy_pbr",
-    "bevy/bevy_gltf",
-    "bevy/bevy_render",
-    "bevy/bevy_sprite",
-    "bevy/bevy_text",
-    "bevy/bevy_ui",
-    "bevy/png",
-    "bevy/hdr",
-    "bevy/zstd",
-    "bevy/x11",
-    "bevy/ktx2",
-    "bevy/filesystem_watcher",
-    "bevy/tonemapping_luts"
+  "bevy/animation",
+  "bevy/bevy_asset",
+  "bevy/bevy_scene",
+  "bevy/bevy_winit",
+  "bevy/bevy_core_pipeline",
+  "bevy/bevy_pbr",
+  "bevy/bevy_gltf",
+  "bevy/bevy_render",
+  "bevy/bevy_sprite",
+  "bevy/bevy_text",
+  "bevy/bevy_ui",
+  "bevy/png",
+  "bevy/hdr",
+  "bevy/zstd",
+  "bevy/x11",
+  "bevy/ktx2",
+  "bevy/filesystem_watcher",
+  "bevy/tonemapping_luts"
 ]
 
 [dependencies]
@@ -49,8 +47,8 @@ itertools = { version = "^0.10" }
 statig = { version = "^0.3" }
 
 # keep the dependency up to date with bevy_winit
-winit = { version = "^0.27", default-features = false, features = [ "wayland", "x11" ]}
-image = { version = "^0.24", default-features = false }
+# winit = { version = "^0.27", default-features = false, features = [ "wayland", "x11" ]}
+# image = { version = "^0.24", default-features = false }
 
 # Bevy things
 bevy = { version = "^0.10", default-features = false }
@@ -65,6 +63,7 @@ bevy_ecs_ldtk = { version = "^0.7" }
 bevy_hanabi = { version = "^0.6", default-features = false, features = [ "2d" ] }
 leafwing-input-manager = { version = "^0.9" }
 seldom_state = { version = "^0.6", features= [ "leafwing_input" ] }
+bevy_editor_pls = "0.4.0"
 
 [build-dependencies]
 embed-resource = "1.4"
