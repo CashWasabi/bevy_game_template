@@ -1,4 +1,4 @@
-use crate::animations::components::{
+use crate::game::animations::components::{
     Animation,
     AnimationState,
 };

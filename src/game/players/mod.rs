@@ -2,7 +2,8 @@ pub mod state_machine;
 pub mod components;
 pub mod systems;
 
-use crate::GameState;
+use crate::AppState;
+use crate::game::GameState;
 
 use bevy::prelude::*;
 use seldom_state::StateMachinePlugin;
@@ -22,7 +23,9 @@ impl Plugin for PlayerPlugin {
                     systems::update_player_animation,
                     systems::update_player_state,
                     systems::update_player_movement,
-                ).in_set(OnUpdate(GameState::Playing))
+                )
+                .in_set(OnUpdate(AppState::Game))
+                .in_set(OnUpdate(GameState::Running))
             )
         ;
     }

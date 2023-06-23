@@ -1,12 +1,9 @@
-use bevy::app::AppExit;
 use bevy::prelude::*;
 
-use crate::GameState;
+use crate::configs::GAME_TITLE;
 use crate::loading::FontAssets;
 
-use super::styles::{
-    CLICKED_BUTTON_COLOR,
-    HOVERED_BUTTON_COLOR,
+use crate::main_menu::styles::{
     NORMAL_BUTTON_COLOR,
     MAIN_MENU_STYLE,
     BUTTON_STYLE,
@@ -16,60 +13,13 @@ use super::styles::{
 
 };
 
-use super::components::{
+use crate::main_menu::components::{
     PlayButton,
     QuitButton,
     MainMenu,
 };
 
-pub fn click_play_button(
-    mut state: ResMut<NextState<GameState>>,
-    mut interaction_query: Query<
-        (&Interaction, &mut BackgroundColor),
-        (Changed<Interaction>, With<PlayButton>),
-    >,
-) {
-    for (interaction, mut color) in &mut interaction_query {
-        match *interaction {
-            Interaction::Clicked => {
-                *color = CLICKED_BUTTON_COLOR.into();
-                state.set(GameState::Playing);
-            }
-            Interaction::Hovered => {
-                *color = HOVERED_BUTTON_COLOR.into();
-            }
-            Interaction::None => {
-                *color = NORMAL_BUTTON_COLOR.into();
-            }
-        }
-    }
-}
-
-pub fn click_exit_button(
-    mut app_exit_event_writer: EventWriter<AppExit>,
-    mut interaction_query: Query<
-        (&Interaction, &mut BackgroundColor),
-        (Changed<Interaction>, With<QuitButton>),
-    >,
-) {
-    for (interaction, mut color) in &mut interaction_query {
-        match *interaction {
-            Interaction::Clicked => {
-                *color = CLICKED_BUTTON_COLOR.into();
-                app_exit_event_writer.send(AppExit);
-            }
-            Interaction::Hovered => {
-                *color = HOVERED_BUTTON_COLOR.into();
-            }
-            Interaction::None => {
-                *color = NORMAL_BUTTON_COLOR.into();
-            }
-        }
-    }
-}
-
 pub fn spawn_main_menu(mut commands: Commands, font_assets: Res<FontAssets>) {
-    commands.spawn(Camera2dBundle::default());
     build_main_menu(&mut commands, &font_assets);
 }
 
@@ -100,7 +50,7 @@ pub fn build_main_menu(commands: &mut Commands, font_assets: &Res<FontAssets>) -
                     parent.spawn(TextBundle {
                         text: Text {
                             sections: vec![TextSection::new(
-                                "Kaginawa",
+                                GAME_TITLE.to_string(),
                                 get_title_text_style(&font_assets),
                             )],
                             alignment: TextAlignment::Center,
@@ -147,7 +97,7 @@ pub fn build_main_menu(commands: &mut Commands, font_assets: &Res<FontAssets>) -
                         text: Text {
                             sections: vec![TextSection::new(
                                 "Quit",
-                                get_button_text_style(&font_assets),
+                                get_button_text_style(font_assets),
                             )],
                             alignment: TextAlignment::Center,
                             ..default()
@@ -160,3 +110,4 @@ pub fn build_main_menu(commands: &mut Commands, font_assets: &Res<FontAssets>) -
 
     main_menu_entity
 }
+

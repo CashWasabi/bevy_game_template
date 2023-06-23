@@ -1,6 +1,7 @@
-use crate::ldtk::components::*;
+use crate::configs::ASPECT_RATIO;
+use crate::game::ldtk::components::*;
 use crate::loading::LevelAssets;
-use crate::players::components::*;
+use crate::game::players::components::*;
 
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
@@ -8,7 +9,6 @@ use bevy_rapier2d::prelude::*;
 
 use std::collections::{HashMap, HashSet};
 
-const ASPECT_RATIO: f32 = 16. / 9.;
 
 pub fn setup(mut commands: Commands, level_assets: Res<LevelAssets>) {
     commands.spawn(LdtkWorldBundle {
@@ -208,6 +208,7 @@ pub fn spawn_wall_collision(
 
 #[allow(clippy::type_complexity)]
 pub fn camera_fit_inside_current_level(
+    player_query: Query<&Transform, With<Player>>,
     mut camera_query: Query<
         (
             &mut bevy::render::camera::OrthographicProjection,
@@ -215,7 +216,6 @@ pub fn camera_fit_inside_current_level(
         ),
         Without<Player>,
     >,
-    player_query: Query<&Transform, With<Player>>,
     level_query: Query<
         (&Transform, &Handle<LdtkLevel>),
         (Without<OrthographicProjection>, Without<Player>),
@@ -230,41 +230,41 @@ pub fn camera_fit_inside_current_level(
     {
         let player_translation = *player_translation;
 
-        let (mut orthographic_projection, mut camera_transform) = camera_query.single_mut();
+        if let Some((mut orthographic_projection, mut camera_transform)) = camera_query.get_single_mut().ok() {
+            for (level_transform, level_handle) in &level_query {
+                if let Some(ldtk_level) = ldtk_levels.get(level_handle) {
+                    let level = &ldtk_level.level;
+                    if level_selection.is_match(&0, level) {
+                        let level_ratio = level.px_wid as f32 / ldtk_level.level.px_hei as f32;
+                        orthographic_projection.viewport_origin = Vec2::ZERO;
+                        if level_ratio > ASPECT_RATIO {
+                            // level is wider than the screen
+                            let height = (level.px_hei as f32 / 9.).round() * 9.;
+                            let width = height * ASPECT_RATIO;
+                            orthographic_projection.scaling_mode =
+                                bevy::render::camera::ScalingMode::Fixed { width, height };
+                            camera_transform.translation.x =
+                                (player_translation.x - level_transform.translation.x - width / 2.)
+                                    .clamp(0., level.px_wid as f32 - width);
+                            camera_transform.translation.y = 0.;
+                        } else {
+                            // level is taller than the screen
+                            let width = (level.px_wid as f32 / 16.).round() * 16.;
+                            let height = width / ASPECT_RATIO;
+                            orthographic_projection.scaling_mode =
+                                bevy::render::camera::ScalingMode::Fixed { width, height };
+                            camera_transform.translation.y =
+                                (player_translation.y - level_transform.translation.y - height / 2.)
+                                    .clamp(0., level.px_hei as f32 - height);
+                            camera_transform.translation.x = 0.;
+                        }
 
-        for (level_transform, level_handle) in &level_query {
-            if let Some(ldtk_level) = ldtk_levels.get(level_handle) {
-                let level = &ldtk_level.level;
-                if level_selection.is_match(&0, level) {
-                    let level_ratio = level.px_wid as f32 / ldtk_level.level.px_hei as f32;
-                    orthographic_projection.viewport_origin = Vec2::ZERO;
-                    if level_ratio > ASPECT_RATIO {
-                        // level is wider than the screen
-                        let height = (level.px_hei as f32 / 9.).round() * 9.;
-                        let width = height * ASPECT_RATIO;
-                        orthographic_projection.scaling_mode =
-                            bevy::render::camera::ScalingMode::Fixed { width, height };
-                        camera_transform.translation.x =
-                            (player_translation.x - level_transform.translation.x - width / 2.)
-                                .clamp(0., level.px_wid as f32 - width);
-                        camera_transform.translation.y = 0.;
-                    } else {
-                        // level is taller than the screen
-                        let width = (level.px_wid as f32 / 16.).round() * 16.;
-                        let height = width / ASPECT_RATIO;
-                        orthographic_projection.scaling_mode =
-                            bevy::render::camera::ScalingMode::Fixed { width, height };
-                        camera_transform.translation.y =
-                            (player_translation.y - level_transform.translation.y - height / 2.)
-                                .clamp(0., level.px_hei as f32 - height);
-                        camera_transform.translation.x = 0.;
+                        camera_transform.translation.x += level_transform.translation.x;
+                        camera_transform.translation.y += level_transform.translation.y;
                     }
-
-                    camera_transform.translation.x += level_transform.translation.x;
-                    camera_transform.translation.y += level_transform.translation.y;
                 }
             }
-        }
+        };
     }
 }
 

@@ -1,7 +1,7 @@
 pub mod systems;
 pub mod components;
 
-use crate::GameState;
+use crate::AppState;
 use bevy::prelude::*;
 use bevy_kira_audio::prelude::*;
 
@@ -12,7 +12,8 @@ impl Plugin for InternalAudioPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugin(AudioPlugin)
             .add_system(
-                systems::start_audio.in_schedule(OnEnter(GameState::Playing))
+                systems::start_audio
+                .in_schedule(OnEnter(AppState::Game))
             )
             ;
     }

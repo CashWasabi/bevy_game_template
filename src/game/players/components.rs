@@ -1,7 +1,8 @@
-use crate::players::state_machine::CharacterController;
-use crate::actions::components::{Action, default_input_map};
-use crate::animations::components::{Animation, AnimationState, PlayerAnimations};
-use crate::physics::components::{ColliderBundle, GroundDetection, WallDetection};
+use crate::game::players::state_machine::CharacterController;
+use crate::game::players::state_machine::ExternalContext;
+use crate::game::actions::components::{Action, default_input_map};
+use crate::game::animations::components::{Animation, AnimationState, PlayerAnimations};
+use crate::game::physics::components::{ColliderBundle, GroundDetection, WallDetection};
 use bevy::prelude::*;
 use leafwing_input_manager::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
@@ -17,10 +18,14 @@ pub struct PlayerDirection(pub f32);
 #[derive(Component, Deref)]
 pub struct PlayerStateMachine(pub StateMachine<CharacterController>);
 
+#[derive(Component, Deref)]
+pub struct CharacterControllerExternalContext(pub ExternalContext);
+
 #[derive(Bundle)]
 pub struct PlayerStateBundle {
     pub input_manager_bundle: InputManagerBundle<Action>,
     pub player: Player,
+    pub character_controller_external_context: CharacterControllerExternalContext,
     pub character_controller: PlayerStateMachine,
     pub player_animations: PlayerAnimations,
     pub animation: Animation,
@@ -37,7 +42,12 @@ impl Default for PlayerStateBundle {
         };
         let player = Player::default();
         let mut state_machine = CharacterController::default().state_machine();
-        state_machine.init();
+        let mut external_context = ExternalContext {
+            ground_detected: false,
+            wall_detected: false,
+        };
+        state_machine.init_with_context(&mut external_context);
+        let character_controller_external_context = CharacterControllerExternalContext(external_context);
         let character_controller = PlayerStateMachine(state_machine);
         let player_animations = PlayerAnimations::default();
         let animation = Animation::default();
@@ -47,6 +57,7 @@ impl Default for PlayerStateBundle {
         PlayerStateBundle {
             input_manager_bundle,
             player,
+            character_controller_external_context,
             character_controller,
             player_animations,
             animation,

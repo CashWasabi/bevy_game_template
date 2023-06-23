@@ -3,15 +3,15 @@ use bevy_rapier2d::prelude::*;
 use statig::prelude::IntoStateMachine;
 use leafwing_input_manager::prelude::ActionState;
 
-use crate::players::components::*;
-use crate::actions::components::Action;
-use crate::animations::components::*;
-use crate::physics::components::{
+use crate::game::players::components::*;
+use crate::game::actions::components::Action;
+use crate::game::animations::components::*;
+use crate::game::physics::components::{
     GroundDetection,
     WallDetection
 };
-use crate::players::state_machine::CharacterController;
-use crate::players::state_machine::Event as CharacterEvent;
+use crate::game::players::state_machine::CharacterController;
+use crate::game::players::state_machine::Event as CharacterEvent;
 
 
 pub fn flip_sprites(
@@ -79,57 +79,117 @@ pub fn update_player_state(
         &WallDetection,
         &mut GravityScale,
         &mut PlayerStateMachine,
+        &mut CharacterControllerExternalContext,
     )>,
 ) {
     for (
         action_state,
         ground_detection,
-        _wall_detection,
+        wall_detection,
         _gravity_scale,
         mut player_state_machine,
+        mut character_controller_external_context,
     ) in &mut query {
-        if action_state.pressed(Action::Run)  {
-            player_state_machine.0.handle(&CharacterEvent::Run);
+        type CharacterState = <CharacterController as IntoStateMachine>::State;
+
+        // update our current situation
+        character_controller_external_context.0.ground_detected = ground_detection.0;
+        character_controller_external_context.0.wall_detected = wall_detection.0;
+
+        // update on key inputs
+        if action_state.just_pressed(Action::Run)  {
+            player_state_machine.0.handle_with_context(
+                &CharacterEvent::StartRunning,
+                &mut character_controller_external_context.0
+            );
+            return;
+        }
+        if action_state.just_released(Action::Run)  {
+            player_state_machine.0.handle_with_context(
+                &CharacterEvent::StopRunning,
+                &mut character_controller_external_context.0
+            );
             return;
         }
 
-        if action_state.pressed(Action::Crouch)  {
-            player_state_machine.0.handle(&CharacterEvent::Crouch);
+        if action_state.just_pressed(Action::Crouch)  {
+            player_state_machine.0.handle_with_context(
+                &CharacterEvent::StartCrouching,
+                &mut character_controller_external_context.0
+            );
+            return;
+        }
+        if action_state.just_released(Action::Crouch)  {
+            player_state_machine.0.handle_with_context(
+                &CharacterEvent::StopCrouching,
+                &mut character_controller_external_context.0
+            );
             return;
         }
 
         if action_state.just_pressed(Action::Jump)  {
-            player_state_machine.0.handle(&CharacterEvent::Jump);
+            player_state_machine.0.handle_with_context(
+                &CharacterEvent::Jumping,
+                &mut character_controller_external_context.0
+            );
             return;
         }
 
         if action_state.just_pressed(Action::Dash)  {
-            player_state_machine.0.handle(&CharacterEvent::Dash);
+            player_state_machine.0.handle_with_context(
+                &CharacterEvent::StartDashing,
+                &mut character_controller_external_context.0
+            );
+            return;
+        } else if action_state.just_released(Action::Dash) {
+            player_state_machine.0.handle_with_context(
+                &CharacterEvent::StopDashing,
+                &mut character_controller_external_context.0
+            );
             return;
         }
 
         if action_state.just_pressed(Action::Attack)  {
-            if ground_detection.0 {
-                player_state_machine.0.handle(&CharacterEvent::Attack);
+            player_state_machine.0.handle_with_context(
+                &CharacterEvent::StartAttacking,
+                &mut character_controller_external_context.0
+            );
+            return;
+        }
 
-            } else {
-                player_state_machine.0.handle(&CharacterEvent::Attack);
-            }
+        if action_state.just_released(Action::Attack)  {
+            player_state_machine.0.handle_with_context(
+                &CharacterEvent::StopAttacking,
+                &mut character_controller_external_context.0
+            );
             return;
         }
 
         if action_state.pressed(Action::Move)  {
-            player_state_machine.0.handle(&CharacterEvent::Move);
+            match player_state_machine.0.state() {
+                CharacterState::Walk{ .. } => (),
+                _ => {
+                    player_state_machine.0.handle_with_context(
+                        &CharacterEvent::StartWalking,
+                        &mut character_controller_external_context.0
+                    );
+                }
+            };
             return;
         }
 
-        if ground_detection.0 {
-            player_state_machine.0.handle(&CharacterEvent::Grounded);
-
-        } else {
-            player_state_machine.0.handle(&CharacterEvent::Fall);
+        if action_state.just_released(Action::Move)  {
+            player_state_machine.0.handle_with_context(
+                &CharacterEvent::StopWalking,
+                &mut character_controller_external_context.0
+            );
+            return;
         }
 
+        player_state_machine.0.handle_with_context(
+            &CharacterEvent::Empty,
+            &mut character_controller_external_context.0
+        );
     }
 }
 

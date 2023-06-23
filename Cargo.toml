@@ -1,5 +1,5 @@
 [package]
-name = "kaginawa"
+name = "ablaze"
 version = "0.1.1"
 publish = false
 authors = ["Marcel Ochs <marc3lox@googlemail.com>"]
@@ -46,14 +46,11 @@ rand = { version = "^0.8" }
 itertools = { version = "^0.10" }
 statig = { version = "^0.3" }
 
-# keep the dependency up to date with bevy_winit
-# winit = { version = "^0.27", default-features = false, features = [ "wayland", "x11" ]}
-# image = { version = "^0.24", default-features = false }
-
 # Bevy things
 bevy = { version = "^0.10", default-features = false }
 
 # Plugins etc.
+bevy_egui = "0.20"
 bevy_kira_audio = { version = "^0.15" }
 bevy_asset_loader = { version = "^0.16" }
 bevy-inspector-egui = { version = "^0.18" }
@@ -64,6 +61,8 @@ bevy_hanabi = { version = "^0.6", default-features = false, features = [ "2d" ] 
 leafwing-input-manager = { version = "^0.9" }
 seldom_state = { version = "^0.6", features= [ "leafwing_input" ] }
 bevy_editor_pls = "0.4.0"
+bevy_prototype_debug_lines = "0.10"
+bevy_mod_sysfail = "^2"
 
 [build-dependencies]
 embed-resource = "1.4"

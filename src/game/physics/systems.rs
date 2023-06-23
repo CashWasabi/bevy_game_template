@@ -1,4 +1,4 @@
-use crate::physics::components::{GroundDetection, WallDetection, GroundSensor, WallSensor};
+use crate::game::physics::components::{GroundDetection, WallDetection, GroundSensor, WallSensor};
 use bevy::utils::HashSet;
 
 use bevy::prelude::*;

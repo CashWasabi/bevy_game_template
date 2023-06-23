@@ -1,9 +1,9 @@
 use bevy::prelude::*;
 use bevy_kira_audio::prelude::*;
 // use leafwing_input_manager::prelude::*;
-// use crate::actions::components::Action;
+// use crate::game::actions::components::Action;
 use crate::loading::AudioAssets;
-use crate::audio::components::{
+use crate::game::audio::components::{
     FlyingAudio,
     // WalkingAudio,
     // RunningAudio,
@@ -27,7 +27,7 @@ pub fn start_audio(
 }
 
 // TODO(MO): use events to start and stop sound!
-pub fn control_flying_sound(
+pub fn _control_flying_sound(
     // actions: ActionState<Action>,
     audio: Res<FlyingAudio>,
     mut audio_instances: ResMut<Assets<AudioInstance>>,

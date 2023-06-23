@@ -4,7 +4,8 @@ pub mod systems;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
-use crate::GameState;
+use crate::AppState;
+use crate::game::GameState;
 
 pub struct PhysicsPlugin;
 
@@ -24,7 +25,9 @@ impl Plugin for PhysicsPlugin {
                     systems::spawn_wall_sensor,
                     systems::ground_detection,
                     systems::wall_detection,
-                ).in_set(OnUpdate(GameState::Playing))
+                )
+                .in_set(OnUpdate(AppState::Game))
+                .in_set(OnUpdate(GameState::Running))
             )
             ;
     }

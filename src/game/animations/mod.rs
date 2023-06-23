@@ -3,7 +3,8 @@ pub mod components;
 
 use bevy::prelude::*;
 
-use crate::GameState;
+use crate::AppState;
+use crate::game::GameState;
 
 pub struct InternalAnimationPlugin;
 
@@ -15,7 +16,9 @@ impl Plugin for InternalAnimationPlugin {
                 systems::animate,
                 // systems::flip_sprites,
                 // systems::update_player_animation,
-            ).in_set(OnUpdate(GameState::Playing))
+            )
+            .in_set(OnUpdate(AppState::Game))
+            .in_set(OnUpdate(GameState::Running))
         )
         ;
     }

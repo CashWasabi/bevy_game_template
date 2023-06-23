@@ -1,7 +1,8 @@
 pub mod components;
 pub mod systems;
 
-use crate::GameState;
+use crate::AppState;
+use crate::game::GameState;
 
 use bevy::prelude::*;
 
@@ -15,7 +16,9 @@ impl Plugin for MovementPlugin {
                 systems::crouch_system,
                 systems::jump_system,
                 systems::dash_system,
-            ).in_set(OnUpdate(GameState::Playing))
+            )
+            .in_set(OnUpdate(AppState::Game))
+            .in_set(OnUpdate(GameState::Running))
         )
         ;
     }

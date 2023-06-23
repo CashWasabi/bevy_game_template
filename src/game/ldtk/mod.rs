@@ -4,10 +4,10 @@ pub mod systems;
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 
-use crate::ldtk::components::WallBundle;
-use crate::players::components::PlayerBundle;
-use crate::GameState;
-
+use crate::game::ldtk::components::WallBundle;
+use crate::game::players::components::PlayerBundle;
+use crate::game::GameState;
+use crate::AppState;
 
 pub struct LdtkImportPlugin;
 
@@ -23,17 +23,17 @@ impl Plugin for LdtkImportPlugin {
                 set_clear_color: SetClearColor::FromLevelBackground,
                 ..Default::default()
             })
-            .add_system(
-                systems::setup.in_schedule(OnEnter(GameState::Playing))
-            )
+            .add_system(systems::setup.in_schedule(OnEnter(AppState::Game)))
             .add_systems(
                 (
                     systems::pause_physics_during_load,
                     systems::spawn_wall_collision,
+                    // TODO(MO): This keeps panicking!
                     systems::camera_fit_inside_current_level,
                     systems::update_level_selection,
                     systems::restart_level,
-                ).in_set(OnUpdate(GameState::Playing))
+                ).in_set(OnUpdate(AppState::Game))
+                 .in_set(OnUpdate(GameState::Running)),
             )
             .register_ldtk_int_cell::<WallBundle>(1)
             .register_ldtk_int_cell::<WallBundle>(3)

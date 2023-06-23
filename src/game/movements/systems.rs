@@ -2,15 +2,15 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use leafwing_input_manager::prelude::ActionState;
 
-use crate::movements::components::{
+use crate::game::movements::components::{
     JumpMovement,
     RunMovement,
     DashMovement,
     CrouchMovement,
 };
 
-use crate::actions::components::Action;
-use crate::physics::components::GroundDetection;
+use crate::game::actions::components::Action;
+use crate::game::physics::components::GroundDetection;
 
 pub fn run_system(
     mut query: Query<(
